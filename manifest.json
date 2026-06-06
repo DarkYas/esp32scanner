@@ -2,7 +2,7 @@
   "name": "ESP32 Scanner",
   "short_name": "ESP32",
   "description": "Scanner BLE e WiFi para ESP32",
-  "start_url": "/",
+  "start_url": "/esp32scanner/",
   "display": "standalone",
   "background_color": "#02010A",
   "theme_color": "#02010A",
