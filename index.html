@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 WiFi Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #eef2f7;
+            --panel: #ffffff;
+            --panel-border: #c5d5e8;
+            --accent: #0077b6;
+            --accent2: #0096c7;
+            --danger: #d62828;
+            --success: #2d9c6e;
+            --warning: #e07b00;
+            --text: #1a2a3a;
+            --text-dim: #7a94aa;
+            --mono: 'Share Tech Mono', monospace;
+            --sans: 'Exo 2', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--sans);
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 16px;
+        }
+
+        .app-container { width: 100%; max-width: 440px; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 {
+            font-family: var(--mono);
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+        .header .sub {
+            font-size: 0.72rem;
+            letter-spacing: 4px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .header-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            margin-top: 14px;
+            opacity: 0.3;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,80,150,0.06);
+        }
+
+        .card-label {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-label::before { content: '//'; color: var(--accent); opacity: 0.5; }
+
+        .status-display {
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            padding: 10px 14px;
+            background: #f4f8fc;
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            flex-shrink: 0;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .status-dot.connected    { background: var(--success); box-shadow: 0 0 7px rgba(45,156,110,0.5); animation: pulse 2s infinite; }
+        .status-dot.disconnected { background: var(--danger); }
+        .status-dot.scanning     { background: var(--warning); box-shadow: 0 0 7px rgba(224,123,0,0.5); animation: pulse 0.8s infinite; }
+
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+        .btn-row { display: flex; gap: 8px; }
+
+        button {
+            flex: 1;
+            padding: 9px 14px;
+            border: 1px solid;
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        button.btn-primary   { background: var(--accent);  border-color: var(--accent);  color: #fff; }
+        button.btn-primary:hover:not(:disabled)   { background: var(--accent2); border-color: var(--accent2); }
+        button.btn-danger    { background: #fff; border-color: #e8b0b0; color: var(--danger); }
+        button.btn-danger:hover:not(:disabled)    { background: #fff0f0; border-color: var(--danger); }
+        button.btn-secondary { background: #fff; border-color: var(--panel-border); color: var(--text-dim); }
+        button.btn-warning   { background: #fff; border-color: #f5d08a; color: var(--warning); }
+        button:disabled { opacity: 0.35; cursor: not-allowed; }
+        button:active:not(:disabled) { transform: scale(0.97); }
+
+        .rssi-big {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 6px;
+            padding: 16px 0 8px;
+        }
+        .rssi-value {
+            font-family: var(--mono);
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--accent);
+            transition: color 0.4s;
+        }
+        .rssi-unit { font-family: var(--mono); font-size: 1rem; color: var(--text-dim); padding-bottom: 10px; }
+
+        .signal-bar-wrap {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 32px;
+            margin: 8px 0 4px;
+        }
+        .bar { width: 18px; border-radius: 3px 3px 0 0; background: var(--panel-border); transition: background 0.4s; }
+        .bar.b1{height:20%} .bar.b2{height:40%} .bar.b3{height:60%} .bar.b4{height:80%} .bar.b5{height:100%}
+        .bar.active      { background: var(--accent); }
+        .bar.active.good { background: var(--success); }
+        .bar.active.ok   { background: var(--warning); }
+        .bar.active.bad  { background: var(--danger); }
+
+        .signal-label { text-align:center; font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); margin-bottom:12px; }
+
+        .net-table { width:100%; border-collapse:collapse; font-family:var(--mono); font-size:0.78rem; }
+        .net-table th { text-align:left; padding:5px 8px; color:var(--text-dim); border-bottom:1px solid var(--panel-border); font-weight:400; font-size:0.68rem; letter-spacing:1px; }
+        .net-table td { padding:5px 8px; border-bottom:1px solid #f0f4f8; }
+        .net-table tr:last-child td { border-bottom:none; }
+        .net-table .rssi-cell { text-align:right; }
+        .rssi-pill { display:inline-block; padding:1px 7px; border-radius:10px; font-size:0.72rem; }
+        .pill-good { background:#e6f4ee; color:var(--success); }
+        .pill-ok   { background:#fff4e0; color:var(--warning); }
+        .pill-bad  { background:#fdeaea; color:var(--danger);  }
+
+        .dist-row { display:flex; align-items:center; justify-content:center; gap:10px; padding:10px 0 4px; border-top:1px solid var(--panel-border); margin-top:8px; }
+        .dist-value { font-family:var(--mono); font-size:1.5rem; font-weight:700; color:var(--accent2); }
+        .dist-unit  { font-family:var(--mono); font-size:0.85rem; color:var(--text-dim); }
+        .dist-note  { font-family:var(--mono); font-size:0.65rem; color:var(--text-dim); text-align:center; margin-bottom:8px; }
+        .history-wrap { margin:8px 0 4px; }
+        canvas#rssiChart { width:100%; height:80px; display:block; }
+
+        .log-box {
+            font-family:var(--mono); font-size:0.75rem; color:var(--text-dim);
+            background:#f4f8fc; border:1px solid var(--panel-border);
+            border-radius:6px; padding:10px 14px;
+            max-height:120px; overflow-y:auto;
+            margin-bottom:10px; line-height:1.7;
+        }
+        .log-entry { display:block; }
+        .log-entry .ts  { color:rgba(0,119,182,0.45); margin-right:6px; }
+        .log-entry.ok   .msg { color:var(--success); }
+        .log-entry.err  .msg { color:var(--danger);  }
+        .log-entry.info .msg { color:var(--accent);  }
+        .log-entry.warn .msg { color:var(--warning); }
+
+        input[type="text"] {
+            width:100%; padding:10px 14px;
+            background:#f4f8fc; border:1px solid var(--panel-border);
+            border-radius:6px; color:var(--text);
+            font-family:var(--mono); font-size:0.85rem;
+            margin-bottom:10px; outline:none;
+            transition:border-color 0.2s;
+        }
+        input[type="text"]:focus { border-color:var(--accent); background:#fff; }
+        input[type="text"]::placeholder { color:var(--text-dim); }
+        input[type="text"]:disabled { opacity:0.5; cursor:not-allowed; background:#eef2f7; }
+
+        .compat-warn {
+            background:#fff4e0; border:1px solid #f5d08a;
+            border-radius:8px; padding:12px 14px;
+            font-family:var(--mono); font-size:0.75rem;
+            color:var(--warning); margin-bottom:12px;
+            display:none;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+
+    <div class="header">
+        <h1>ESP32 WiFi Scanner</h1>
+        <div class="sub">BLE &amp; WiFi Signal Strength</div>
+        <div class="header-line"></div>
+    </div>
+
+    <div class="compat-warn" id="compatWarn">
+        ⚠ Web Bluetooth not supported in this browser. Open in Chrome on Android.
+    </div>
+
+    <div class="card">
+        <div class="card-label">Ligação BLE</div>
+        <div class="status-display">
+            <div class="status-dot disconnected" id="statusDot"></div>
+            <span id="LblStatus">Desligado</span>
+        </div>
+        <div class="btn-row">
+            <button class="btn-primary"  id="BtnConnect">Ligar</button>
+            <button class="btn-danger"   id="BtnDisconnect" disabled>Desligar</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-label">BLE RSSI — telemóvel ↔ ESP32</div>
+        <div class="rssi-big">
+            <span class="rssi-value" id="bleRssiVal">--</span>
+            <span class="rssi-unit">dBm</span>
+        </div>
+        <div class="signal-bar-wrap">
+            <div class="bar b1" id="bar1"></div>
+            <div class="bar b2" id="bar2"></div>
+            <div class="bar b3" id="bar3"></div>
+            <div class="bar b4" id="bar4"></div>
+            <div class="bar b5" id="bar5"></div>
+        </div>
+        <div class="signal-label" id="signalQuality">Sem sinal</div>
+        <div class="dist-row">
+            <span style="font-size:1.1rem;color:var(--text-dim)">📍</span>
+            <span class="dist-value" id="distVal">--</span>
+            <span class="dist-unit"  id="distUnit">m</span>
+        </div>
+        <div class="dist-note">distância estimada (n=2.5, TxPower=−59 dBm)</div>
+        <div class="history-wrap">
+            <canvas id="rssiChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-label">Redes WiFi — scan RSSI</div>
+        <table class="net-table">
+            <thead><tr><th>#</th><th>SSID</th><th class="rssi-cell">RSSI</th></tr></thead>
+            <tbody id="netTableBody">
+                <tr><td colspan="3" style="color:var(--text-dim);padding:10px 8px;font-size:0.78rem;">A aguardar dados...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-label">Enviar Comando</div>
+        <input type="text" id="TbxWriteValue" placeholder="Comando para o ESP32..." disabled>
+        <div class="btn-row">
+            <button class="btn-primary" id="BtnWriteChar" disabled>Enviar</button>
+            <button class="btn-warning" id="BtnRefresh"   disabled>Refresh</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-label">Log do Sistema</div>
+        <div class="log-box" id="LblLog"></div>
+        <button class="btn-secondary" id="BtnClearLog">Limpar Log</button>
+    </div>
+
+</div>
+<script>
+    var SERVICE_UUID        = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+    var CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+
+    var bleDevice     = null;
+    var bleChar       = null;
+    var rssiInterval  = null;
+    var rssiHistory   = [];
+    var MAX_HISTORY   = 30;
+
+    // ── Timestamp ─────────────────────────────────────────────────────────────
+    function ts() {
+        var d = new Date();
+        return String(d.getHours()).padStart(2,'0') + ':' +
+               String(d.getMinutes()).padStart(2,'0') + ':' +
+               String(d.getSeconds()).padStart(2,'0');
+    }
+
+    // ── Log ───────────────────────────────────────────────────────────────────
+    function log(msg, type) {
+        type = type || 'info';
+        var box = document.getElementById('LblLog');
+        var entry = document.createElement('span');
+        entry.className = 'log-entry ' + type;
+        entry.innerHTML = '<span class="ts">[' + ts() + ']</span><span class="msg">' + msg + '</span>';
+        box.appendChild(entry);
+        box.appendChild(document.createTextNode('\n'));
+        box.scrollTop = box.scrollHeight;
+    }
+
+    // ── UI state ──────────────────────────────────────────────────────────────
+    function setConnectedUI(connected) {
+        var dot = document.getElementById('statusDot');
+        dot.className = 'status-dot ' + (connected ? 'connected' : 'disconnected');
+        document.getElementById('BtnConnect').disabled    =  connected;
+        document.getElementById('BtnDisconnect').disabled = !connected;
+        document.getElementById('BtnWriteChar').disabled  = !connected;
+        document.getElementById('BtnRefresh').disabled    = !connected;
+        document.getElementById('TbxWriteValue').disabled = !connected;
+    }
+
+    function resetSignalUI() {
+        document.getElementById('bleRssiVal').textContent = '--';
+        document.getElementById('bleRssiVal').style.color = 'var(--accent)';
+        document.getElementById('distVal').textContent = '--';
+        document.getElementById('distUnit').textContent = 'm';
+        document.getElementById('signalQuality').textContent = 'Sem sinal';
+        for (var i = 1; i <= 5; i++) {
+            document.getElementById('bar' + i).className = 'bar b' + i;
+        }
+    }
+
+    // ── Signal bars ───────────────────────────────────────────────────────────
+    function updateSignalBars(rssi) {
+        var bars = 1, quality = 'Muito fraco', cls = 'bad';
+        if      (rssi >= -60) { bars = 5; quality = 'Excelente'; cls = 'good'; }
+        else if (rssi >= -67) { bars = 4; quality = 'Bom';       cls = 'good'; }
+        else if (rssi >= -75) { bars = 3; quality = 'Razoável';  cls = 'ok';   }
+        else if (rssi >= -82) { bars = 2; quality = 'Fraco';     cls = 'bad';  }
+        for (var i = 1; i <= 5; i++) {
+            var b = document.getElementById('bar' + i);
+            b.className = 'bar b' + i + (i <= bars ? ' active ' + cls : '');
+        }
+        document.getElementById('signalQuality').textContent = quality + ' (' + rssi + ' dBm)';
+        var col = cls === 'good' ? 'var(--success)' : cls === 'ok' ? 'var(--warning)' : 'var(--danger)';
+        document.getElementById('bleRssiVal').style.color = col;
+    }
+
+    // ── Distance estimate ─────────────────────────────────────────────────────
+    function updateDistance(rssi) {
+        var d = Math.pow(10, (-59 - rssi) / 25);
+        var el = document.getElementById('distVal');
+        var unit = document.getElementById('distUnit');
+        if (d < 1)         { el.textContent = (d * 100).toFixed(0); unit.textContent = 'cm'; }
+        else if (d >= 100) { el.textContent = (d / 1000).toFixed(2); unit.textContent = 'km'; }
+        else               { el.textContent = d.toFixed(2);           unit.textContent = 'm';  }
+    }
+
+    // ── RSSI chart ────────────────────────────────────────────────────────────
+    function drawChart() {
+        var canvas = document.getElementById('rssiChart');
+        var W = canvas.offsetWidth || 380;
+        canvas.width = W; canvas.height = 80;
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, W, 80);
+        if (rssiHistory.length < 2) return;
+        var min = -100, max = -30;
+        var pts = rssiHistory.map(function(v, i) {
+            return { x: (i / (MAX_HISTORY - 1)) * W, y: 80 - ((v - min) / (max - min)) * 72 - 4 };
+        });
+        var y70 = 80 - ((-70 - min) / (max - min)) * 72 - 4;
+        ctx.setLineDash([3, 4]);
+        ctx.strokeStyle = 'rgba(0,119,182,0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, y70); ctx.lineTo(W, y70); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, 80);
+        pts.forEach(function(p) { ctx.lineTo(p.x, p.y); });
+        ctx.lineTo(pts[pts.length - 1].x, 80);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0,119,182,0.08)';
+        ctx.fill();
+        ctx.beginPath();
+        pts.forEach(function(p, i) { i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); });
+        ctx.strokeStyle = 'rgba(0,119,182,0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+
+    // ── Parse incoming BLE data ───────────────────────────────────────────────
+    function handleIncomingData(value) {
+        var decoder = new TextDecoder('utf-8');
+        var raw = decoder.decode(value);
+        log('Dados recebidos: ' + raw.substring(0, 40), 'info');
+
+        var rssiMatch = raw.match(/^RSSI:(-?\d+)/);
+        if (rssiMatch) {
+            var rssi = parseInt(rssiMatch[1]);
+            document.getElementById('bleRssiVal').textContent = rssi;
+            updateSignalBars(rssi);
+            updateDistance(rssi);
+            rssiHistory.push(rssi);
+            if (rssiHistory.length > MAX_HISTORY) rssiHistory.shift();
+            drawChart();
+            return;
+        }
+
+        var tbody = document.getElementById('netTableBody');
+        var lines = raw.trim().split('\n').filter(function(l) { return l.trim(); });
+        if (!lines.length) return;
+        tbody.innerHTML = '';
+        lines.forEach(function(line) {
+            var match = line.match(/^(\d+)\.\s+(.+?)\s+\((-?\d+)\s*dBm\)/);
+            if (match) {
+                var r = parseInt(match[3]);
+                var pillClass = r >= -67 ? 'pill-good' : r >= -75 ? 'pill-ok' : 'pill-bad';
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td style="color:var(--text-dim)">' + match[1] + '</td>' +
+                               '<td>' + match[2] + '</td>' +
+                               '<td class="rssi-cell"><span class="rssi-pill ' + pillClass + '">' + match[3] + ' dBm</span></td>';
+                tbody.appendChild(tr);
+            } else {
+                var tr2 = document.createElement('tr');
+                tr2.innerHTML = '<td colspan="3" style="color:var(--text-dim)">' + line + '</td>';
+                tbody.appendChild(tr2);
+            }
+        });
+    }
+
+    // ── RSSI polling via Web Bluetooth ────────────────────────────────────────
+    async function startRssiPolling() {
+        rssiInterval = setInterval(async function() {
+            if (!bleDevice || !bleDevice.gatt.connected) {
+                clearInterval(rssiInterval);
+                return;
+            }
+            try {
+                var val = await bleChar.readValue();
+                handleIncomingData(val);
+            } catch(e) {
+                log('Erro leitura: ' + e.message, 'warn');
+            }
+        }, 5000);
+    }
+
+    // ── Connect ───────────────────────────────────────────────────────────────
+    async function connect() {
+        try {
+            document.getElementById('statusDot').className = 'status-dot scanning';
+            document.getElementById('LblStatus').textContent = 'A procurar ESP32...';
+            document.getElementById('BtnConnect').disabled = true;
+            log('A iniciar Web Bluetooth...', 'info');
+
+            bleDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ name: 'ESP32_Trabalho_SCSF' }],
+                optionalServices: [SERVICE_UUID]
+            });
+
+            log('Dispositivo encontrado: ' + bleDevice.name, 'ok');
+            bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+            document.getElementById('LblStatus').textContent = 'A ligar...';
+            var server = await bleDevice.gatt.connect();
+            log('GATT ligado', 'ok');
+
+            var service = await server.getPrimaryService(SERVICE_UUID);
+            bleChar = await service.getCharacteristic(CHARACTERISTIC_UUID);
+            log('Característica obtida', 'ok');
+
+            // Subscribe to notifications
+            bleChar.addEventListener('characteristicvaluechanged', function(e) {
+                handleIncomingData(e.target.value);
+            });
+            await bleChar.startNotifications();
+            log('Notificações ativas', 'ok');
+
+            document.getElementById('LblStatus').textContent = 'Ligado ao ESP32';
+            setConnectedUI(true);
+            log('BLE ligado ao ESP32', 'ok');
+
+            // Read initial value
+            var initial = await bleChar.readValue();
+            handleIncomingData(initial);
+
+        } catch(e) {
+            log('Erro: ' + e.message, 'err');
+            document.getElementById('statusDot').className = 'status-dot disconnected';
+            document.getElementById('LblStatus').textContent = 'Erro de ligação';
+            document.getElementById('BtnConnect').disabled = false;
+        }
+    }
+
+    // ── Disconnect ────────────────────────────────────────────────────────────
+    function onDisconnected() {
+        clearInterval(rssiInterval);
+        setConnectedUI(false);
+        resetSignalUI();
+        document.getElementById('LblStatus').textContent = 'Desligado';
+        log('BLE desligado', 'err');
+        bleChar = null;
+    }
+
+    async function disconnect() {
+        if (bleDevice && bleDevice.gatt.connected) {
+            await bleDevice.gatt.disconnect();
+        }
+    }
+
+    // ── Write ─────────────────────────────────────────────────────────────────
+    async function writeValue(val) {
+        if (!bleChar) { log('Não ligado', 'err'); return; }
+        try {
+            var encoder = new TextEncoder();
+            await bleChar.writeValue(encoder.encode(val));
+            log('Enviado: ' + val, 'ok');
+        } catch(e) {
+            log('Erro escrita: ' + e.message, 'err');
+        }
+    }
+
+    // ── Button handlers ───────────────────────────────────────────────────────
+    document.getElementById('BtnConnect').onclick    = connect;
+    document.getElementById('BtnDisconnect').onclick = disconnect;
+
+    document.getElementById('BtnWriteChar').onclick = function() {
+        var val = document.getElementById('TbxWriteValue').value.trim();
+        if (!val) { log('Nada para enviar', 'err'); return; }
+        writeValue(val);
+    };
+
+    document.getElementById('BtnRefresh').onclick = async function() {
+        if (!bleChar) return;
+        log('Leitura manual...', 'info');
+        try {
+            var val = await bleChar.readValue();
+            handleIncomingData(val);
+        } catch(e) {
+            log('Erro: ' + e.message, 'err');
+        }
+    };
+
+    document.getElementById('BtnClearLog').onclick = function() {
+        document.getElementById('LblLog').innerHTML = '';
+        log('Log limpo');
+    };
+
+    document.getElementById('TbxWriteValue').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('BtnWriteChar').click();
+    });
+
+    // ── Check Web Bluetooth support ───────────────────────────────────────────
+    if (!navigator.bluetooth) {
+        document.getElementById('compatWarn').style.display = 'block';
+        document.getElementById('BtnConnect').disabled = true;
+        log('Web Bluetooth não suportado neste browser', 'err');
+    } else {
+        log('Web Bluetooth disponível', 'ok');
+    }
+</script>
+</body>
+</html>
