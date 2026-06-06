@@ -32,7 +32,6 @@
         }
         .container { max-width: 420px; margin: 0 auto; }
 
-        /* Header */
         .header { text-align: center; margin-bottom: 32px; }
         .header h1 {
             font-family: var(--mono);
@@ -55,7 +54,6 @@
             opacity: 0.5;
         }
 
-        /* Cards */
         .card {
             background: var(--card);
             border-radius: 20px;
@@ -70,31 +68,38 @@
             color: var(--text-dim);
             margin-bottom: 16px;
         }
+        .card-title-row {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .card-title-row .card-title { margin-bottom: 0; }
+        .source-badge {
+            font-family: var(--mono); font-size: 0.6rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            padding: 2px 8px; border-radius: 20px;
+            background: #eeebe8; color: var(--text-dim);
+            transition: all 0.25s;
+        }
+        .source-badge.wifi { background: #f0edff; color: var(--purple); }
 
-        /* Status */
         .status-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #eeebe8;
-            border-radius: 12px;
-            padding: 10px 14px;
+            display: flex; align-items: center;
+            gap: 10px; background: #eeebe8;
+            border-radius: 12px; padding: 10px 14px;
             margin-bottom: 14px;
         }
         .dot {
-            width: 9px; height: 9px;
-            border-radius: 50%;
-            background: #ccc;
-            flex-shrink: 0;
+            width: 9px; height: 9px; border-radius: 50%;
+            background: #ccc; flex-shrink: 0;
             transition: background 0.3s, box-shadow 0.3s;
         }
-        .dot.ligado     { background: var(--sig-good); box-shadow: 0 0 8px rgba(34,197,94,0.6); animation: pulse 2s infinite; }
-        .dot.desligado  { background: var(--sig-bad); }
-        .dot.procurar   { background: var(--sig-ok); box-shadow: 0 0 8px rgba(245,158,11,0.6); animation: pulse 0.7s infinite; }
+        .dot.ligado    { background: var(--sig-good); box-shadow: 0 0 8px rgba(34,197,94,0.6); animation: pulse 2s infinite; }
+        .dot.desligado { background: var(--sig-bad); }
+        .dot.procurar  { background: var(--sig-ok); box-shadow: 0 0 8px rgba(245,158,11,0.6); animation: pulse 0.7s infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
         .status-text { font-family: var(--mono); font-size: 0.82rem; color: var(--text); }
 
-        /* Buttons */
         .btn-row { display: flex; gap: 8px; }
         .btn {
             flex: 1; padding: 10px 14px;
@@ -113,20 +118,19 @@
         .btn:disabled   { opacity: 0.3; cursor: not-allowed; }
         .btn:active:not(:disabled) { transform: scale(0.97); }
 
-        /* RSSI big display */
+        /* ── BLE RSSI view ── */
         .rssi-center {
             display: flex; align-items: flex-end;
             justify-content: center; gap: 6px;
             padding: 12px 0 6px;
         }
         .rssi-num {
-            font-family: var(--mono);
-            font-size: 3.8rem; font-weight: 700; line-height: 1;
+            font-family: var(--mono); font-size: 3.8rem;
+            font-weight: 700; line-height: 1;
             color: var(--purple); transition: color 0.4s;
         }
         .rssi-unit { font-family: var(--mono); font-size: 1rem; color: var(--text-dim); padding-bottom: 10px; }
 
-        /* Signal bars */
         .bars-wrap {
             display: flex; align-items: flex-end;
             justify-content: center; gap: 5px;
@@ -139,40 +143,88 @@
         .bar.on-bad  { background: var(--sig-bad); }
         .sig-label { text-align:center; font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); margin-bottom:14px; }
 
-        /* Distance */
-        .dist-block {
-            border-top: 1px solid #e0ddd9;
-            padding-top: 14px; margin-top: 4px;
-        }
+        .dist-block { border-top: 1px solid #e0ddd9; padding-top: 14px; margin-top: 4px; }
         .dist-top {
             display: flex; align-items: baseline;
             justify-content: center; gap: 8px; margin-bottom: 4px;
         }
-        .dist-num { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--purple); }
+        .dist-num  { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--purple); }
         .dist-unit { font-family: var(--mono); font-size: 0.9rem; color: var(--text-dim); }
         .dist-formula {
-            text-align: center;
-            font-family: var(--mono); font-size: 0.62rem;
-            color: var(--text-dim); margin-bottom: 10px;
+            text-align: center; font-family: var(--mono);
+            font-size: 0.62rem; color: var(--text-dim); margin-bottom: 10px;
         }
-
-        /* Chart */
         canvas#rssiChart { width:100%; height:70px; display:block; margin-top:8px; }
 
-        /* WiFi networks */
-        .net-list { display: flex; flex-direction: column; gap: 8px; }
+        /* ── WiFi detail view ── */
+        #wifiDetail { display: none; }
+        #wifiDetail.visible { display: block; }
+
+        .wifi-detail-header {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 14px;
+        }
+        .wifi-ssid {
+            font-family: var(--mono); font-size: 1.05rem;
+            font-weight: 700; color: var(--text); word-break: break-all;
+        }
+        .wifi-back {
+            background: #eeebe8; border: none; border-radius: 8px;
+            padding: 5px 10px; font-family: var(--mono); font-size: 0.68rem;
+            color: var(--text-dim); cursor: pointer; letter-spacing: 1px;
+            flex-shrink: 0; transition: background 0.15s;
+        }
+        .wifi-back:hover { background: #e0ddd9; }
+
+        .wifi-qual-row {
+            display: flex; align-items: center;
+            gap: 10px; margin-bottom: 14px;
+        }
+        .wifi-bars {
+            display: flex; align-items: flex-end; gap: 4px; height: 28px;
+        }
+        .wbar { width: 16px; border-radius: 3px 3px 0 0; background: #ddd; transition: background 0.4s; }
+        .wbar.b1{height:20%} .wbar.b2{height:40%} .wbar.b3{height:60%} .wbar.b4{height:80%} .wbar.b5{height:100%}
+        .wbar.on-good { background: var(--sig-good); }
+        .wbar.on-ok   { background: var(--sig-ok); }
+        .wbar.on-bad  { background: var(--sig-bad); }
+        .wifi-qual-text { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); }
+
+        .wifi-stats {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+        }
+        .wifi-stat {
+            background: #eeebe8; border-radius: 12px; padding: 12px 14px;
+        }
+        .wifi-stat-label {
+            font-size: 0.62rem; font-weight: 600; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
+        }
+        .wifi-stat-val {
+            font-family: var(--mono); font-size: 1.5rem;
+            font-weight: 700; color: var(--purple); transition: color 0.4s;
+        }
+        .wifi-stat-unit {
+            font-family: var(--mono); font-size: 0.78rem;
+            color: var(--text-dim); margin-left: 3px;
+        }
+        .wifi-formula {
+            font-family: var(--mono); font-size: 0.62rem; color: var(--text-dim);
+            border-top: 1px solid #e0ddd9; padding-top: 12px; text-align: center;
+        }
+
+        /* ── Network list (flat) ── */
+        .net-list { display: flex; flex-direction: column; gap: 6px; }
         .net-item {
-            background: #eeebe8;
-            border-radius: 12px;
-            padding: 12px 14px;
-            cursor: pointer;
-            transition: all 0.15s;
-            border: 2px solid transparent;
+            background: #eeebe8; border-radius: 12px;
+            padding: 11px 14px; cursor: pointer;
+            transition: all 0.15s; border: 2px solid transparent;
+            display: flex; align-items: center; justify-content: space-between;
         }
         .net-item:active { transform: scale(0.98); }
         .net-item.selected { border-color: var(--purple); background: #f0edff; }
-        .net-top { display: flex; align-items: center; justify-content: space-between; }
         .net-name { font-size: 0.88rem; font-weight: 500; color: var(--text); }
+        .net-right { display: flex; align-items: center; gap: 8px; }
         .net-pill {
             font-family: var(--mono); font-size: 0.68rem;
             padding: 2px 9px; border-radius: 20px; font-weight: 600;
@@ -180,37 +232,16 @@
         .pill-good { background: #dcfce7; color: #15803d; }
         .pill-ok   { background: #fef3c7; color: #b45309; }
         .pill-bad  { background: #fee2e2; color: #b91c1c; }
+        .net-mini-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+        .nmb { width: 5px; border-radius: 1px 1px 0 0; background: #ccc; }
+        .nmb.b1{height:25%} .nmb.b2{height:50%} .nmb.b3{height:75%} .nmb.b4{height:100%}
+        .nmb.on-good{background:var(--sig-good)} .nmb.on-ok{background:var(--sig-ok)} .nmb.on-bad{background:var(--sig-bad)}
 
-        /* Selected network detail */
-        .net-detail {
-            margin-top: 10px; padding-top: 10px;
-            border-top: 1px solid #d5d2cf;
-            display: none;
-        }
-        .net-item.selected .net-detail { display: block; }
-        .net-detail-bars {
-            display: flex; align-items: flex-end;
-            gap: 3px; height: 24px; margin-bottom: 6px;
-        }
-        .nb { width: 14px; border-radius: 3px 3px 0 0; background: #ccc; }
-        .nb.b1{height:20%} .nb.b2{height:40%} .nb.b3{height:60%} .nb.b4{height:80%} .nb.b5{height:100%}
-        .nb.on-good { background: var(--sig-good); }
-        .nb.on-ok   { background: var(--sig-ok); }
-        .nb.on-bad  { background: var(--sig-bad); }
-        .net-detail-row {
-            display: flex; justify-content: space-between;
-            font-family: var(--mono); font-size: 0.72rem;
-            color: var(--text-dim); margin-top: 4px;
-        }
-        .net-detail-row span:last-child { color: var(--text); font-weight: 600; }
-
-        /* Log */
         .log-box {
             font-family: var(--mono); font-size: 0.72rem;
             background: #eeebe8; border-radius: 12px;
             padding: 10px 14px; max-height: 110px;
-            overflow-y: auto; margin-bottom: 10px; line-height: 1.8;
-            color: var(--text-dim);
+            overflow-y: auto; margin-bottom: 10px; line-height: 1.8; color: var(--text-dim);
         }
         .le { display: block; }
         .le .lt { color: rgba(94,43,255,0.4); margin-right: 6px; }
@@ -219,14 +250,11 @@
         .le.info .lm { color: var(--purple); }
         .le.warn .lm { color: var(--sig-ok); }
 
-        /* Input */
         input[type="text"] {
             width: 100%; padding: 10px 14px;
-            background: #eeebe8; border: none;
-            border-radius: 10px; color: var(--text);
-            font-family: var(--mono); font-size: 0.85rem;
-            margin-bottom: 10px; outline: none;
-            transition: box-shadow 0.2s;
+            background: #eeebe8; border: none; border-radius: 10px;
+            color: var(--text); font-family: var(--mono); font-size: 0.85rem;
+            margin-bottom: 10px; outline: none; transition: box-shadow 0.2s;
         }
         input[type="text"]:focus { box-shadow: 0 0 0 2px var(--purple); }
         input[type="text"]::placeholder { color: #aaa; }
@@ -234,15 +262,12 @@
 
         .compat-warn {
             background: #fff8e1; border-left: 3px solid var(--sig-ok);
-            border-radius: 10px; padding: 12px 14px;
-            font-size: 0.78rem; color: #92400e;
-            margin-bottom: 14px; display: none;
+            border-radius: 10px; padding: 12px 14px; font-size: 0.78rem;
+            color: #92400e; margin-bottom: 14px; display: none;
         }
-
         .empty-state {
             text-align: center; padding: 20px 0;
-            font-family: var(--mono); font-size: 0.75rem;
-            color: var(--text-dim);
+            font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);
         }
     </style>
 </head>
@@ -272,28 +297,64 @@
         </div>
     </div>
 
-    <!-- BLE RSSI -->
+    <!-- Sinal / detalhe rede selecionada -->
     <div class="card">
-        <div class="card-title">RSSI Bluetooth</div>
-        <div class="rssi-center">
-            <span class="rssi-num" id="bleRssi">--</span>
-            <span class="rssi-unit">dBm</span>
+        <div class="card-title-row">
+            <div class="card-title" id="signalCardTitle">RSSI Bluetooth</div>
+            <span class="source-badge" id="sourceBadge">BLE</span>
         </div>
-        <div class="bars-wrap">
-            <div class="bar b1" id="bar1"></div>
-            <div class="bar b2" id="bar2"></div>
-            <div class="bar b3" id="bar3"></div>
-            <div class="bar b4" id="bar4"></div>
-            <div class="bar b5" id="bar5"></div>
-        </div>
-        <div class="sig-label" id="sigQuality">Sem sinal</div>
-        <div class="dist-block">
-            <div class="dist-top">
-                <span class="dist-num" id="distVal">--</span>
-                <span class="dist-unit" id="distUnit">m</span>
+
+        <!-- Vista BLE -->
+        <div id="bleView">
+            <div class="rssi-center">
+                <span class="rssi-num" id="bleRssi">--</span>
+                <span class="rssi-unit">dBm</span>
             </div>
-            <div class="dist-formula">d = 10 ^ ((TxPower − RSSI) / (10 × n)) &nbsp;·&nbsp; n=2.5 &nbsp;·&nbsp; TxPower=−59 dBm</div>
-            <canvas id="rssiChart"></canvas>
+            <div class="bars-wrap">
+                <div class="bar b1" id="bar1"></div>
+                <div class="bar b2" id="bar2"></div>
+                <div class="bar b3" id="bar3"></div>
+                <div class="bar b4" id="bar4"></div>
+                <div class="bar b5" id="bar5"></div>
+            </div>
+            <div class="sig-label" id="sigQuality">Sem sinal</div>
+            <div class="dist-block">
+                <div class="dist-top">
+                    <span class="dist-num" id="distVal">--</span>
+                    <span class="dist-unit" id="distUnit">m</span>
+                </div>
+                <div class="dist-formula">d = 10 ^ ((TxPower − RSSI) / (10 × n)) &nbsp;·&nbsp; n=2.5 &nbsp;·&nbsp; TxPower=−59 dBm</div>
+                <canvas id="rssiChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Vista WiFi (rede selecionada) -->
+        <div id="wifiDetail">
+            <div class="wifi-detail-header">
+                <span class="wifi-ssid" id="wifiSsid">—</span>
+                <button class="wifi-back" id="wifiBack">← Voltar</button>
+            </div>
+            <div class="wifi-qual-row">
+                <div class="wifi-bars" id="wifiBars"></div>
+                <span class="wifi-qual-text" id="wifiQualText">—</span>
+            </div>
+            <div class="wifi-stats">
+                <div class="wifi-stat">
+                    <div class="wifi-stat-label">Sinal</div>
+                    <div>
+                        <span class="wifi-stat-val" id="wifiRssiVal">--</span>
+                        <span class="wifi-stat-unit">dBm</span>
+                    </div>
+                </div>
+                <div class="wifi-stat">
+                    <div class="wifi-stat-label">Distância</div>
+                    <div>
+                        <span class="wifi-stat-val" id="wifiDistVal">--</span>
+                        <span class="wifi-stat-unit" id="wifiDistUnit">m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wifi-formula" id="wifiFormula">—</div>
         </div>
     </div>
 
@@ -333,10 +394,9 @@
     var bleChar      = null;
     var rssiHistory  = [];
     var MAX_HIST     = 30;
-    var selectedNet  = null;
+    var selectedSSID = null;
     var networks     = [];
 
-    // ── Timestamp ─────────────────────────────────────────────────────────────
     function ts() {
         var d = new Date();
         return String(d.getHours()).padStart(2,'0') + ':' +
@@ -344,7 +404,6 @@
                String(d.getSeconds()).padStart(2,'0');
     }
 
-    // ── Log ───────────────────────────────────────────────────────────────────
     function log(msg, type) {
         type = type || 'info';
         var box = document.getElementById('logBox');
@@ -356,38 +415,85 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    // ── Distance formula ──────────────────────────────────────────────────────
     function calcDist(rssi) {
         return Math.pow(10, (-59 - rssi) / 25);
     }
 
     function formatDist(d) {
-        if (d < 1)       return { val: (d * 100).toFixed(0), unit: 'cm' };
-        if (d >= 100)    return { val: (d / 1000).toFixed(2), unit: 'km' };
+        if (d < 1)    return { val: (d * 100).toFixed(0), unit: 'cm' };
+        if (d >= 100) return { val: (d / 1000).toFixed(2), unit: 'km' };
         return { val: d.toFixed(2), unit: 'm' };
     }
 
-    // ── Signal bars helper ────────────────────────────────────────────────────
     function sigClass(rssi) {
-        if (rssi >= -67) return { bars: rssi >= -60 ? 5 : 4, cls: 'good', label: rssi >= -60 ? 'Excelente' : 'Bom' };
+        if (rssi >= -60) return { bars: 5, cls: 'good', label: 'Excelente' };
+        if (rssi >= -67) return { bars: 4, cls: 'good', label: 'Bom' };
         if (rssi >= -75) return { bars: 3, cls: 'ok',   label: 'Razoável' };
         if (rssi >= -82) return { bars: 2, cls: 'bad',  label: 'Fraco' };
         return { bars: 1, cls: 'bad', label: 'Muito fraco' };
     }
 
-    // ── Update BLE RSSI UI ────────────────────────────────────────────────────
-    function updateBleRssi(rssi) {
-        var s = sigClass(rssi);
+    // ── Mostrar detalhe da rede no card de sinal ──────────────────────────────
+    function showWifiDetail(net) {
+        selectedSSID = net.ssid;
+        var s   = sigClass(net.rssi);
+        var fd  = formatDist(calcDist(net.rssi));
         var col = s.cls === 'good' ? 'var(--sig-good)' : s.cls === 'ok' ? 'var(--sig-ok)' : 'var(--sig-bad)';
-        document.getElementById('bleRssi').textContent = rssi;
-        document.getElementById('bleRssi').style.color = col;
+
+        document.getElementById('bleView').style.display = 'none';
+        document.getElementById('wifiDetail').style.display = 'block';
+
+        var title = document.getElementById('signalCardTitle');
+        var badge = document.getElementById('sourceBadge');
+        title.textContent = 'Rede Selecionada';
+        badge.textContent = 'WiFi';
+        badge.classList.add('wifi');
+
+        document.getElementById('wifiSsid').textContent     = net.ssid;
+        document.getElementById('wifiQualText').textContent = s.label + ' (' + net.rssi + ' dBm)';
+        document.getElementById('wifiRssiVal').textContent  = net.rssi;
+        document.getElementById('wifiRssiVal').style.color  = col;
+        document.getElementById('wifiDistVal').textContent  = fd.val;
+        document.getElementById('wifiDistVal').style.color  = col;
+        document.getElementById('wifiDistUnit').textContent = fd.unit;
+        document.getElementById('wifiFormula').textContent  =
+            'd = 10 ^ ((-59 - (' + net.rssi + ')) / 25)  ·  resultado: ' + fd.val + ' ' + fd.unit;
+
+        var barsEl = document.getElementById('wifiBars');
+        barsEl.innerHTML = '';
+        for (var i = 1; i <= 5; i++) {
+            var b = document.createElement('div');
+            b.className = 'wbar b' + i + (i <= s.bars ? ' on-' + s.cls : '');
+            barsEl.appendChild(b);
+        }
+
+        renderNetworks();
+    }
+
+    function hideWifiDetail() {
+        selectedSSID = null;
+        document.getElementById('bleView').style.display    = '';
+        document.getElementById('wifiDetail').style.display = 'none';
+        document.getElementById('signalCardTitle').textContent = 'RSSI Bluetooth';
+        var badge = document.getElementById('sourceBadge');
+        badge.textContent = 'BLE';
+        badge.classList.remove('wifi');
+        renderNetworks();
+    }
+
+    // ── BLE RSSI ──────────────────────────────────────────────────────────────
+    function updateBleRssi(rssi) {
+        var s   = sigClass(rssi);
+        var col = s.cls === 'good' ? 'var(--sig-good)' : s.cls === 'ok' ? 'var(--sig-ok)' : 'var(--sig-bad)';
+        document.getElementById('bleRssi').textContent    = rssi;
+        document.getElementById('bleRssi').style.color    = col;
         for (var i = 1; i <= 5; i++) {
             document.getElementById('bar' + i).className =
                 'bar b' + i + (i <= s.bars ? ' on-' + s.cls : '');
         }
         document.getElementById('sigQuality').textContent = s.label + ' (' + rssi + ' dBm)';
         var fd = formatDist(calcDist(rssi));
-        document.getElementById('distVal').textContent = fd.val;
+        document.getElementById('distVal').textContent  = fd.val;
         document.getElementById('distUnit').textContent = fd.unit;
         rssiHistory.push(rssi);
         if (rssiHistory.length > MAX_HIST) rssiHistory.shift();
@@ -395,16 +501,15 @@
     }
 
     function resetBleRssi() {
-        document.getElementById('bleRssi').textContent = '--';
-        document.getElementById('bleRssi').style.color = 'var(--purple)';
-        document.getElementById('distVal').textContent = '--';
-        document.getElementById('distUnit').textContent = 'm';
+        document.getElementById('bleRssi').textContent    = '--';
+        document.getElementById('bleRssi').style.color    = 'var(--purple)';
+        document.getElementById('distVal').textContent    = '--';
+        document.getElementById('distUnit').textContent   = 'm';
         document.getElementById('sigQuality').textContent = 'Sem sinal';
         for (var i = 1; i <= 5; i++)
             document.getElementById('bar' + i).className = 'bar b' + i;
     }
 
-    // ── Chart ─────────────────────────────────────────────────────────────────
     function drawChart() {
         var canvas = document.getElementById('rssiChart');
         var W = canvas.offsetWidth || 360;
@@ -430,49 +535,48 @@
         ctx.stroke();
     }
 
-    // ── Render network list ───────────────────────────────────────────────────
+    // ── Lista de redes (plana, sem dropdown) ──────────────────────────────────
     function renderNetworks() {
         var list = document.getElementById('netList');
         if (!networks.length) {
             list.innerHTML = '<div class="empty-state">Nenhuma rede encontrada</div>';
             return;
         }
-        networks.sort(function(a,b) { return b.rssi - a.rssi; });
+        networks.sort(function(a, b) { return b.rssi - a.rssi; });
         list.innerHTML = '';
-        networks.forEach(function(net, idx) {
-            var s = sigClass(net.rssi);
+        networks.forEach(function(net) {
+            var s       = sigClass(net.rssi);
             var pillCls = s.cls === 'good' ? 'pill-good' : s.cls === 'ok' ? 'pill-ok' : 'pill-bad';
-            var fd = formatDist(calcDist(net.rssi));
+            var isSel   = selectedSSID === net.ssid;
 
-            var bars = '';
-            for (var i = 1; i <= 5; i++) {
-                bars += '<div class="nb b' + i + (i <= s.bars ? ' on-' + s.cls : '') + '"></div>';
+            // Mini barras compactas (4 barras)
+            var miniCount = Math.round(s.bars * 4 / 5);
+            var miniBars  = '';
+            for (var i = 1; i <= 4; i++) {
+                miniBars += '<div class="nmb b' + i + (i <= miniCount ? ' on-' + s.cls : '') + '"></div>';
             }
 
             var item = document.createElement('div');
-            item.className = 'net-item' + (selectedNet === idx ? ' selected' : '');
-            item.dataset.idx = idx;
+            item.className = 'net-item' + (isSel ? ' selected' : '');
             item.innerHTML =
-                '<div class="net-top">' +
-                    '<span class="net-name">' + net.ssid + '</span>' +
+                '<span class="net-name">' + net.ssid + '</span>' +
+                '<div class="net-right">' +
+                    '<div class="net-mini-bars">' + miniBars + '</div>' +
                     '<span class="net-pill ' + pillCls + '">' + net.rssi + ' dBm</span>' +
-                '</div>' +
-                '<div class="net-detail">' +
-                    '<div class="net-detail-bars">' + bars + '</div>' +
-                    '<div class="net-detail-row"><span>Qualidade</span><span>' + s.label + '</span></div>' +
-                    '<div class="net-detail-row"><span>Distância estimada</span><span>' + fd.val + ' ' + fd.unit + '</span></div>' +
-                    '<div class="net-detail-row"><span>Fórmula</span><span>d = 10^((−59 − (' + net.rssi + ')) / 25)</span></div>' +
                 '</div>';
-            item.onclick = function() {
-                var i = parseInt(this.dataset.idx);
-                selectedNet = selectedNet === i ? null : i;
-                renderNetworks();
-            };
+
+            (function(n) {
+                item.onclick = function() {
+                    if (selectedSSID === n.ssid) hideWifiDetail();
+                    else showWifiDetail(n);
+                };
+            })(net);
+
             list.appendChild(item);
         });
     }
 
-    // ── Parse BLE data ────────────────────────────────────────────────────────
+    // ── Processar dados BLE recebidos ─────────────────────────────────────────
     function handleData(value) {
         var raw = new TextDecoder('utf-8').decode(value).trim();
 
@@ -482,7 +586,7 @@
             return;
         }
 
-        var lines = raw.split('\n').filter(function(l) { return l.trim(); });
+        var lines  = raw.split('\n').filter(function(l) { return l.trim(); });
         var parsed = [];
         lines.forEach(function(line) {
             var m = line.match(/^(\d+)\.\s+(.+?)\s+\((-?\d+)\s*dBm\)/);
@@ -490,15 +594,25 @@
         });
         if (parsed.length) {
             networks = parsed;
-            renderNetworks();
+            // Atualiza o painel de detalhe se a rede ainda estiver na lista
+            if (selectedSSID) {
+                var stillThere = null;
+                for (var i = 0; i < networks.length; i++) {
+                    if (networks[i].ssid === selectedSSID) { stillThere = networks[i]; break; }
+                }
+                if (stillThere) showWifiDetail(stillThere);
+                else hideWifiDetail();
+            } else {
+                renderNetworks();
+            }
             log('Redes WiFi atualizadas (' + parsed.length + ')', 'ok');
         }
     }
 
-    // ── Connect ───────────────────────────────────────────────────────────────
+    // ── Ligar BLE ─────────────────────────────────────────────────────────────
     async function ligar() {
         try {
-            document.getElementById('statusDot').className = 'dot procurar';
+            document.getElementById('statusDot').className    = 'dot procurar';
             document.getElementById('statusText').textContent = 'A procurar ESP32...';
             document.getElementById('BtnLigar').disabled = true;
             log('A iniciar ligação BLE...', 'info');
@@ -511,22 +625,22 @@
             bleDevice.addEventListener('gattserverdisconnected', desligarUI);
             document.getElementById('statusText').textContent = 'A ligar...';
 
-            var server = await bleDevice.gatt.connect();
+            var server  = await bleDevice.gatt.connect();
             var service = await server.getPrimaryService(SERVICE_UUID);
-            bleChar = await service.getCharacteristic(CHARACTERISTIC_UUID);
+            bleChar     = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
             bleChar.addEventListener('characteristicvaluechanged', function(e) {
                 handleData(e.target.value);
             });
             await bleChar.startNotifications();
 
-            document.getElementById('statusDot').className = 'dot ligado';
+            document.getElementById('statusDot').className    = 'dot ligado';
             document.getElementById('statusText').textContent = 'Ligado ao ESP32';
-            document.getElementById('BtnLigar').disabled     = true;
-            document.getElementById('BtnDesligar').disabled  = false;
-            document.getElementById('BtnAtualizar').disabled = false;
-            document.getElementById('BtnEnviar').disabled    = false;
-            document.getElementById('TbxComando').disabled   = false;
+            document.getElementById('BtnLigar').disabled      = true;
+            document.getElementById('BtnDesligar').disabled   = false;
+            document.getElementById('BtnAtualizar').disabled  = false;
+            document.getElementById('BtnEnviar').disabled     = false;
+            document.getElementById('TbxComando').disabled    = false;
             log('Ligado com sucesso', 'ok');
 
             var initial = await bleChar.readValue();
@@ -534,22 +648,22 @@
 
         } catch(e) {
             log('Erro: ' + e.message, 'err');
-            document.getElementById('statusDot').className = 'dot desligado';
+            document.getElementById('statusDot').className    = 'dot desligado';
             document.getElementById('statusText').textContent = 'Erro de ligação';
-            document.getElementById('BtnLigar').disabled = false;
+            document.getElementById('BtnLigar').disabled      = false;
         }
     }
 
-    // ── Disconnect UI ─────────────────────────────────────────────────────────
     function desligarUI() {
-        document.getElementById('statusDot').className = 'dot desligado';
+        document.getElementById('statusDot').className    = 'dot desligado';
         document.getElementById('statusText').textContent = 'Desligado';
-        document.getElementById('BtnLigar').disabled     = false;
-        document.getElementById('BtnDesligar').disabled  = true;
-        document.getElementById('BtnAtualizar').disabled = true;
-        document.getElementById('BtnEnviar').disabled    = true;
-        document.getElementById('TbxComando').disabled   = true;
+        document.getElementById('BtnLigar').disabled      = false;
+        document.getElementById('BtnDesligar').disabled   = true;
+        document.getElementById('BtnAtualizar').disabled  = true;
+        document.getElementById('BtnEnviar').disabled     = true;
+        document.getElementById('TbxComando').disabled    = true;
         resetBleRssi();
+        hideWifiDetail();
         bleChar = null;
         log('BLE desligado', 'err');
     }
@@ -558,7 +672,6 @@
         if (bleDevice && bleDevice.gatt.connected) await bleDevice.gatt.disconnect();
     }
 
-    // ── Write ─────────────────────────────────────────────────────────────────
     async function enviar(val) {
         if (!bleChar) { log('Não ligado', 'err'); return; }
         try {
@@ -567,9 +680,9 @@
         } catch(e) { log('Erro: ' + e.message, 'err'); }
     }
 
-    // ── Button handlers ───────────────────────────────────────────────────────
     document.getElementById('BtnLigar').onclick    = ligar;
     document.getElementById('BtnDesligar').onclick = desligar;
+    document.getElementById('wifiBack').onclick    = hideWifiDetail;
 
     document.getElementById('BtnAtualizar').onclick = async function() {
         if (!bleChar) return;
