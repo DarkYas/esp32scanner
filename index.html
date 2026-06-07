@@ -308,7 +308,7 @@
         .wifi-status-msg.success    { display: block; background: #dcfce7; color: #15803d; }
         .wifi-status-msg.fail       { display: block; background: #fee2e2; color: #b91c1c; }
 
-        /* ── Speed Test Panel — novo design sem barra, só número ── */
+        /* ── Ping Test Panel ── */
         .speedtest-panel {
             margin-top: 12px;
             background: #02010A;
@@ -338,7 +338,7 @@
         .btn-speedtest:disabled { opacity: 0.35; cursor: not-allowed; }
         .btn-speedtest:active:not(:disabled) { transform: scale(0.97); }
 
-        /* número grande animado */
+        /* número grande — latência avg */
         .speed-display {
             display: flex; align-items: flex-end;
             justify-content: center; gap: 8px;
@@ -357,7 +357,24 @@
         .speed-unit { font-family: var(--mono); font-size: 0.9rem; color: #555; }
         .speed-unit-sub { font-family: var(--mono); font-size: 0.6rem; color: #333; letter-spacing: 1px; }
 
-        /* barra fina decorativa — apenas cor, sem % de progresso */
+        /* stats min/max/perda */
+        .ping-stats {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px; margin-bottom: 10px;
+        }
+        .ping-stat {
+            background: #0e0d1a; border-radius: 8px; padding: 8px 10px; text-align: center;
+        }
+        .ping-stat-label {
+            font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1.5px;
+            text-transform: uppercase; color: #444; margin-bottom: 4px;
+        }
+        .ping-stat-val {
+            font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--green);
+        }
+        .ping-stat-unit { font-family: var(--mono); font-size: 0.55rem; color: #444; }
+
+        /* barra fina decorativa */
         .speed-stripe {
             height: 2px;
             background: linear-gradient(90deg, var(--purple), var(--green));
@@ -479,18 +496,32 @@
                 </div>
                 <div class="wifi-status-msg" id="wifiStatusMsg"></div>
 
-                <!-- Speed Test — número animado, sem barra de progresso -->
+                <!-- Ping Test — latência animada -->
                 <div class="speedtest-panel" id="speedtestPanel">
                     <div class="speedtest-top">
-                        <span class="speedtest-label">Velocidade Download</span>
+                        <span class="speedtest-label">Teste de Latência</span>
                         <button class="btn-speedtest" id="BtnSpeedtest">Testar</button>
                     </div>
                     <div class="speed-stripe" id="speedStripe"></div>
                     <div class="speed-display">
                         <span class="speed-num" id="speedNum">--</span>
                         <div class="speed-unit-wrap">
-                            <span class="speed-unit">Mbps</span>
-                            <span class="speed-unit-sub" id="speedUnitSub"></span>
+                            <span class="speed-unit">ms</span>
+                            <span class="speed-unit-sub" id="speedUnitSub">avg</span>
+                        </div>
+                    </div>
+                    <div class="ping-stats" id="pingStats" style="display:none">
+                        <div class="ping-stat">
+                            <div class="ping-stat-label">Min</div>
+                            <div><span class="ping-stat-val" id="pingMin">--</span><span class="ping-stat-unit"> ms</span></div>
+                        </div>
+                        <div class="ping-stat">
+                            <div class="ping-stat-label">Max</div>
+                            <div><span class="ping-stat-val" id="pingMax">--</span><span class="ping-stat-unit"> ms</span></div>
+                        </div>
+                        <div class="ping-stat">
+                            <div class="ping-stat-label">Perda</div>
+                            <div><span class="ping-stat-val" id="pingLoss">--</span><span class="ping-stat-unit"> %</span></div>
                         </div>
                     </div>
                     <div class="speed-footer">
@@ -577,36 +608,43 @@
         return { bars: 1, cls: 'bad', label: 'Muito fraco' };
     }
 
-    // ── número de velocidade — sem animação, só texto estático ──────────────
+    // ── animação do contador de ping ─────────────────────────────────────────
+    var speedCountAnim  = null;
+    var speedFakeVal    = 0;
+
     function setSpeedNum(val) {
         document.getElementById('speedNum').textContent = val;
     }
 
     function startSpeedCounter() {
-        // Contador simples que sobe linearmente enquanto testa — sem shaking
         speedFakeVal = 0;
         if (speedCountAnim) clearInterval(speedCountAnim);
+        document.getElementById('pingStats').style.display = 'none';
         speedCountAnim = setInterval(function() {
-            speedFakeVal = Math.min(speedFakeVal + 0.8, 99);
-            setSpeedNum(speedFakeVal.toFixed(1));
+            speedFakeVal = Math.min(speedFakeVal + 3, 199);
+            setSpeedNum(speedFakeVal.toFixed(0));
         }, 150);
     }
 
     function stopSpeedCounter(finalVal) {
         if (speedCountAnim) { clearInterval(speedCountAnim); speedCountAnim = null; }
-        if (finalVal !== null) setSpeedNum(finalVal.toFixed(2));
+        if (finalVal !== null) setSpeedNum(finalVal.toFixed(0));
     }
 
     function resetSpeedtest() {
         if (speedCountAnim) { clearInterval(speedCountAnim); speedCountAnim = null; }
         document.getElementById('speedtestPanel').classList.remove('running');
         setSpeedNum('--');
-        document.getElementById('speedNum').style.color    = 'var(--green)';
-        document.getElementById('speedStatus').textContent = 'Pronto para testar';
-        document.getElementById('speedStatus').className   = 'speed-status';
-        document.getElementById('speedMeta').textContent   = '';
-        document.getElementById('speedUnitSub').textContent = '';
-        document.getElementById('BtnSpeedtest').disabled   = false;
+        document.getElementById('speedNum').style.color     = 'var(--green)';
+        document.getElementById('speedStatus').textContent  = 'Pronto para testar';
+        document.getElementById('speedStatus').className    = 'speed-status';
+        document.getElementById('speedMeta').textContent    = '';
+        document.getElementById('speedUnitSub').textContent = 'avg';
+        document.getElementById('pingStats').style.display  = 'none';
+        document.getElementById('pingMin').textContent      = '--';
+        document.getElementById('pingMax').textContent      = '--';
+        document.getElementById('pingLoss').textContent     = '--';
+        document.getElementById('BtnSpeedtest').disabled    = false;
     }
 
     // ── Envio BLE com retry automático ───────────────────────────────────────
@@ -630,22 +668,23 @@
     }
 
     // ── Botão Testar velocidade ───────────────────────────────────────────────
+    // ── Botão Testar ping ────────────────────────────────────────────────────
     document.getElementById('BtnSpeedtest').onclick = async function() {
         if (!bleChar) { log('Não ligado ao BLE', 'err'); return; }
 
         document.getElementById('BtnSpeedtest').disabled = true;
         document.getElementById('speedtestPanel').classList.add('running');
-        document.getElementById('speedStatus').textContent = 'A testar...';
-        document.getElementById('speedStatus').className   = 'speed-status running';
-        document.getElementById('speedMeta').textContent   = '';
-        document.getElementById('speedUnitSub').textContent = '';
-        document.getElementById('speedNum').style.color    = 'var(--green)';
+        document.getElementById('speedStatus').textContent  = 'A testar...';
+        document.getElementById('speedStatus').className    = 'speed-status running';
+        document.getElementById('speedMeta').textContent    = '';
+        document.getElementById('speedUnitSub').textContent = 'avg';
+        document.getElementById('speedNum').style.color     = 'var(--green)';
 
         startSpeedCounter();
 
         try {
-            await bleWrite('SPEEDTEST');   // com retry automático
-            log('Teste de velocidade iniciado...', 'info');
+            await bleWrite('SPEEDTEST');
+            log('Teste de ping iniciado...', 'info');
         } catch(e) {
             stopSpeedCounter(null);
             document.getElementById('speedtestPanel').classList.remove('running');
@@ -684,38 +723,38 @@
             return;
         }
 
-        // SPEED:12.34:102400:800  (Mbps : bytes : ms)
-        var spMatch = raw.match(/^SPEED:([\d.]+)(?::(\d+):(\d+))?/);
+        // PING:avg:min:max:perda
+        var spMatch = raw.match(/^PING:(\d+):(\d+):(\d+):(\d+)/);
         if (spMatch) {
-            var mbps  = parseFloat(spMatch[1]);
-            var bytes = spMatch[2] ? parseInt(spMatch[2]) : null;
-            var ms    = spMatch[3] ? parseInt(spMatch[3]) : null;
+            var avg   = parseInt(spMatch[1]);
+            var min   = parseInt(spMatch[2]);
+            var max   = parseInt(spMatch[3]);
+            var loss  = parseInt(spMatch[4]);
 
-            stopSpeedCounter(mbps);
+            stopSpeedCounter(avg);
 
             document.getElementById('speedtestPanel').classList.remove('running');
             document.getElementById('speedStatus').textContent = 'Concluído';
             document.getElementById('speedStatus').className   = 'speed-status done';
 
-            // cor do número conforme velocidade
-            var col = mbps >= 50 ? 'var(--green)' :
-                      mbps >= 10 ? 'var(--sig-ok)' : 'var(--sig-bad)';
+            // cor conforme latência
+            var col = avg <= 50  ? 'var(--green)' :
+                      avg <= 150 ? 'var(--sig-ok)' : 'var(--sig-bad)';
             document.getElementById('speedNum').style.color = col;
 
-            if (bytes && ms) {
-                document.getElementById('speedMeta').textContent =
-                    (bytes / 1024).toFixed(0) + ' KB';
-                document.getElementById('speedUnitSub').textContent =
-                    ms + ' ms';
-            }
+            document.getElementById('pingMin').textContent  = min;
+            document.getElementById('pingMax').textContent  = max;
+            document.getElementById('pingLoss').textContent = loss;
+            document.getElementById('pingStats').style.display = 'grid';
+            document.getElementById('speedMeta').textContent = '8.8.8.8';
 
             document.getElementById('BtnSpeedtest').disabled = false;
-            log('Velocidade: ' + mbps.toFixed(2) + ' Mbps', 'ok');
+            log('Ping: avg ' + avg + 'ms  min ' + min + '  max ' + max + '  perda ' + loss + '%', 'ok');
             return;
         }
 
-        // Erro no teste de velocidade
-        if (raw.startsWith('SPEEDERROR')) {
+        // Erro no teste de ping
+        if (raw.startsWith('PINGERROR')) {
             stopSpeedCounter(null);
             document.getElementById('speedtestPanel').classList.remove('running');
             var reason = raw.split(':')[1] || 'desconhecido';
@@ -723,7 +762,7 @@
             document.getElementById('speedStatus').className   = 'speed-status err';
             document.getElementById('BtnSpeedtest').disabled   = false;
             setSpeedNum('--');
-            log('Erro no teste: ' + reason, 'err');
+            log('Erro no ping: ' + reason, 'err');
             return;
         }
 
