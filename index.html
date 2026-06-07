@@ -349,15 +349,6 @@
             font-weight: 700; line-height: 1;
             color: var(--green);
             transition: color 0.3s;
-            /* animação suave ao mudar valor */
-            animation: none;
-        }
-        .speed-num.counting {
-            animation: countPulse 0.15s ease;
-        }
-        @keyframes countPulse {
-            0%   { transform: scale(1.04); }
-            100% { transform: scale(1); }
         }
         .speed-unit-wrap {
             display: flex; flex-direction: column;
@@ -586,54 +577,30 @@
         return { bars: 1, cls: 'bad', label: 'Muito fraco' };
     }
 
-    // ── animação do número de velocidade ─────────────────────────────────────
-    function setSpeedNum(val, animate) {
-        var el = document.getElementById('speedNum');
-        el.textContent = val;
-        if (animate) {
-            el.classList.remove('counting');
-            void el.offsetWidth; // reflow para reiniciar animação CSS
-            el.classList.add('counting');
-        }
+    // ── número de velocidade — sem animação, só texto estático ──────────────
+    function setSpeedNum(val) {
+        document.getElementById('speedNum').textContent = val;
     }
 
     function startSpeedCounter() {
-        // Sobe o número de forma aleatória simulando atividade enquanto testa
+        // Contador simples que sobe linearmente enquanto testa — sem shaking
         speedFakeVal = 0;
         if (speedCountAnim) clearInterval(speedCountAnim);
         speedCountAnim = setInterval(function() {
-            // oscila entre 0 e ~50 de forma orgânica
-            speedFakeVal += (Math.random() * 6 - 1);
-            speedFakeVal = Math.max(0, Math.min(speedFakeVal, 60));
-            setSpeedNum(speedFakeVal.toFixed(1), true);
-        }, 120);
+            speedFakeVal = Math.min(speedFakeVal + 0.8, 99);
+            setSpeedNum(speedFakeVal.toFixed(1));
+        }, 150);
     }
 
     function stopSpeedCounter(finalVal) {
         if (speedCountAnim) { clearInterval(speedCountAnim); speedCountAnim = null; }
-        // animação suave até ao valor final
-        if (finalVal !== null) {
-            var current = speedFakeVal;
-            var steps   = 20;
-            var step    = 0;
-            var anim = setInterval(function() {
-                step++;
-                var t   = step / steps;
-                var eased = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // easeInOut
-                var val = current + (finalVal - current) * eased;
-                setSpeedNum(val.toFixed(2), step % 3 === 0);
-                if (step >= steps) {
-                    clearInterval(anim);
-                    setSpeedNum(finalVal.toFixed(2), false);
-                }
-            }, 30);
-        }
+        if (finalVal !== null) setSpeedNum(finalVal.toFixed(2));
     }
 
     function resetSpeedtest() {
         if (speedCountAnim) { clearInterval(speedCountAnim); speedCountAnim = null; }
         document.getElementById('speedtestPanel').classList.remove('running');
-        setSpeedNum('--', false);
+        setSpeedNum('--');
         document.getElementById('speedNum').style.color    = 'var(--green)';
         document.getElementById('speedStatus').textContent = 'Pronto para testar';
         document.getElementById('speedStatus').className   = 'speed-status';
@@ -685,7 +652,7 @@
             document.getElementById('speedStatus').textContent = 'Erro ao enviar — tenta de novo';
             document.getElementById('speedStatus').className   = 'speed-status err';
             document.getElementById('BtnSpeedtest').disabled   = false;
-            setSpeedNum('--', false);
+            setSpeedNum('--');
             log('Erro ao enviar SPEEDTEST: ' + e.message, 'err');
         }
     };
@@ -755,7 +722,7 @@
             document.getElementById('speedStatus').textContent = 'Erro: ' + reason;
             document.getElementById('speedStatus').className   = 'speed-status err';
             document.getElementById('BtnSpeedtest').disabled   = false;
-            setSpeedNum('--', false);
+            setSpeedNum('--');
             log('Erro no teste: ' + reason, 'err');
             return;
         }
