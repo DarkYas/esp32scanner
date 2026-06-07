@@ -119,6 +119,7 @@
         .btn:disabled   { opacity: 0.3; cursor: not-allowed; }
         .btn:active:not(:disabled) { transform: scale(0.97); }
 
+        /* ── BLE RSSI card — SEM gráfico ── */
         .rssi-center {
             display: flex; align-items: flex-end;
             justify-content: center; gap: 6px;
@@ -152,9 +153,9 @@
         .dist-unit { font-family: var(--mono); font-size: 0.9rem; color: var(--text-dim); }
         .dist-formula {
             text-align: center; font-family: var(--mono);
-            font-size: 0.62rem; color: var(--text-dim); margin-bottom: 10px;
+            font-size: 0.62rem; color: var(--text-dim);
         }
-        canvas#rssiChart { width:100%; height:70px; display:block; margin-top:8px; }
+        /* canvas removido — sem gráfico */
 
         #wifiDetail { display: none; }
 
@@ -307,19 +308,20 @@
         .wifi-status-msg.success    { display: block; background: #dcfce7; color: #15803d; }
         .wifi-status-msg.fail       { display: block; background: #fee2e2; color: #b91c1c; }
 
-        /* ── Speed Test Panel ── */
+        /* ── Speed Test Panel — novo design sem barra, só número ── */
         .speedtest-panel {
             margin-top: 12px;
             background: #02010A;
             border-radius: 12px;
-            padding: 14px 16px;
+            padding: 16px;
             display: none;
             animation: fadeSlideIn 0.25s ease;
         }
         .speedtest-panel.visible { display: block; }
+
         .speedtest-top {
             display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 10px;
+            justify-content: space-between; margin-bottom: 14px;
         }
         .speedtest-label {
             font-size: 0.62rem; font-weight: 600; letter-spacing: 2px;
@@ -336,26 +338,49 @@
         .btn-speedtest:disabled { opacity: 0.35; cursor: not-allowed; }
         .btn-speedtest:active:not(:disabled) { transform: scale(0.97); }
 
-        .speed-result {
+        /* número grande animado */
+        .speed-display {
             display: flex; align-items: flex-end;
-            justify-content: center; gap: 6px; padding: 6px 0 2px;
+            justify-content: center; gap: 8px;
+            padding: 6px 0 10px;
         }
         .speed-num {
-            font-family: var(--mono); font-size: 2.8rem;
+            font-family: var(--mono); font-size: 4.2rem;
             font-weight: 700; line-height: 1;
-            color: var(--green); transition: color 0.4s;
+            color: var(--green);
+            transition: color 0.3s;
+            /* animação suave ao mudar valor */
+            animation: none;
         }
-        .speed-unit { font-family: var(--mono); font-size: 0.85rem; color: #444; padding-bottom: 5px; }
+        .speed-num.counting {
+            animation: countPulse 0.15s ease;
+        }
+        @keyframes countPulse {
+            0%   { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+        .speed-unit-wrap {
+            display: flex; flex-direction: column;
+            align-items: flex-start; padding-bottom: 8px; gap: 2px;
+        }
+        .speed-unit { font-family: var(--mono); font-size: 0.9rem; color: #555; }
+        .speed-unit-sub { font-family: var(--mono); font-size: 0.6rem; color: #333; letter-spacing: 1px; }
 
-        .speed-bar-wrap {
-            height: 4px; background: #1a1a2e; border-radius: 2px;
-            margin: 10px 0 6px; overflow: hidden;
-        }
-        .speed-bar-fill {
-            height: 100%; width: 0%;
+        /* barra fina decorativa — apenas cor, sem % de progresso */
+        .speed-stripe {
+            height: 2px;
             background: linear-gradient(90deg, var(--purple), var(--green));
-            border-radius: 2px; transition: width 0.5s ease;
+            border-radius: 2px;
+            margin: 4px 0 10px;
+            opacity: 0.3;
+            transition: opacity 0.4s;
         }
+        .speedtest-panel.running .speed-stripe { opacity: 1; animation: shimmer 1s linear infinite; }
+        @keyframes shimmer {
+            0%   { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+
         .speed-footer {
             display: flex; align-items: center; justify-content: space-between;
         }
@@ -399,7 +424,7 @@
             <span class="source-badge" id="sourceBadge">BLE</span>
         </div>
 
-        <!-- Vista BLE -->
+        <!-- Vista BLE — sem canvas/gráfico -->
         <div id="bleView">
             <div class="rssi-center">
                 <span class="rssi-num" id="bleRssi">--</span>
@@ -419,7 +444,7 @@
                     <span class="dist-unit" id="distUnit">m</span>
                 </div>
                 <div class="dist-formula">d = 10 ^ ((TxPower &minus; RSSI) / (10 &times; n)) &nbsp;&middot;&nbsp; n=2.5 &nbsp;&middot;&nbsp; TxPower=&minus;59 dBm</div>
-                <canvas id="rssiChart"></canvas>
+                <!-- canvas removido -->
             </div>
         </div>
 
@@ -463,18 +488,19 @@
                 </div>
                 <div class="wifi-status-msg" id="wifiStatusMsg"></div>
 
-                <!-- Speed Test (appears after successful connect) -->
+                <!-- Speed Test — número animado, sem barra de progresso -->
                 <div class="speedtest-panel" id="speedtestPanel">
                     <div class="speedtest-top">
                         <span class="speedtest-label">Velocidade Download</span>
                         <button class="btn-speedtest" id="BtnSpeedtest">Testar</button>
                     </div>
-                    <div class="speed-result">
+                    <div class="speed-stripe" id="speedStripe"></div>
+                    <div class="speed-display">
                         <span class="speed-num" id="speedNum">--</span>
-                        <span class="speed-unit">Mbps</span>
-                    </div>
-                    <div class="speed-bar-wrap">
-                        <div class="speed-bar-fill" id="speedBarFill"></div>
+                        <div class="speed-unit-wrap">
+                            <span class="speed-unit">Mbps</span>
+                            <span class="speed-unit-sub" id="speedUnitSub"></span>
+                        </div>
                     </div>
                     <div class="speed-footer">
                         <span class="speed-status" id="speedStatus">Pronto para testar</span>
@@ -519,12 +545,12 @@
 
     var bleDevice    = null;
     var bleChar      = null;
-    var rssiHistory  = [];
-    var MAX_HIST     = 30;
     var selectedSSID = null;
-    var lastShownSSID = null;
     var networks     = [];
-    var speedBarAnim = null;
+
+    // ── animação do contador de velocidade ───────────────────────────────────
+    var speedCountAnim  = null;   // setInterval do contador
+    var speedFakeVal    = 0;      // valor simulado durante o teste
 
     function ts() {
         var d = new Date();
@@ -560,19 +586,204 @@
         return { bars: 1, cls: 'bad', label: 'Muito fraco' };
     }
 
-    function showWifiDetail(net) {
-        selectedSSID = net.ssid;
-        
-        if (lastShownSSID !== net.ssid) {
-            document.getElementById('wifiPassword').value       = '';
-            document.getElementById('wifiStatusMsg').className  = 'wifi-status-msg';
-            document.getElementById('wifiStatusMsg').textContent = '';
-            document.getElementById('BtnWifiConnect').disabled  = false;
-            resetSpeedtest();
-            document.getElementById('speedtestPanel').classList.remove('visible');
-            lastShownSSID = net.ssid;
+    // ── animação do número de velocidade ─────────────────────────────────────
+    function setSpeedNum(val, animate) {
+        var el = document.getElementById('speedNum');
+        el.textContent = val;
+        if (animate) {
+            el.classList.remove('counting');
+            void el.offsetWidth; // reflow para reiniciar animação CSS
+            el.classList.add('counting');
+        }
+    }
+
+    function startSpeedCounter() {
+        // Sobe o número de forma aleatória simulando atividade enquanto testa
+        speedFakeVal = 0;
+        if (speedCountAnim) clearInterval(speedCountAnim);
+        speedCountAnim = setInterval(function() {
+            // oscila entre 0 e ~50 de forma orgânica
+            speedFakeVal += (Math.random() * 6 - 1);
+            speedFakeVal = Math.max(0, Math.min(speedFakeVal, 60));
+            setSpeedNum(speedFakeVal.toFixed(1), true);
+        }, 120);
+    }
+
+    function stopSpeedCounter(finalVal) {
+        if (speedCountAnim) { clearInterval(speedCountAnim); speedCountAnim = null; }
+        // animação suave até ao valor final
+        if (finalVal !== null) {
+            var current = speedFakeVal;
+            var steps   = 20;
+            var step    = 0;
+            var anim = setInterval(function() {
+                step++;
+                var t   = step / steps;
+                var eased = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // easeInOut
+                var val = current + (finalVal - current) * eased;
+                setSpeedNum(val.toFixed(2), step % 3 === 0);
+                if (step >= steps) {
+                    clearInterval(anim);
+                    setSpeedNum(finalVal.toFixed(2), false);
+                }
+            }, 30);
+        }
+    }
+
+    function resetSpeedtest() {
+        if (speedCountAnim) { clearInterval(speedCountAnim); speedCountAnim = null; }
+        document.getElementById('speedtestPanel').classList.remove('running');
+        setSpeedNum('--', false);
+        document.getElementById('speedNum').style.color    = 'var(--green)';
+        document.getElementById('speedStatus').textContent = 'Pronto para testar';
+        document.getElementById('speedStatus').className   = 'speed-status';
+        document.getElementById('speedMeta').textContent   = '';
+        document.getElementById('speedUnitSub').textContent = '';
+        document.getElementById('BtnSpeedtest').disabled   = false;
+    }
+
+    // ── Envio BLE com retry automático ───────────────────────────────────────
+    // O ESP32 pode estar ocupado (WiFi/BLE radio contention) e recusar a escrita.
+    // Tentamos até 3 vezes com 300 ms de intervalo antes de desistir.
+    async function bleWrite(data, retries) {
+        retries = retries || 3;
+        var encoded = new TextEncoder().encode(data);
+        for (var i = 0; i < retries; i++) {
+            try {
+                await bleChar.writeValue(encoded);
+                return true;   // sucesso
+            } catch(e) {
+                if (i < retries - 1) {
+                    await new Promise(function(r) { setTimeout(r, 300); });
+                } else {
+                    throw e;   // esgotou tentativas — propaga o erro
+                }
+            }
+        }
+    }
+
+    // ── Botão Testar velocidade ───────────────────────────────────────────────
+    document.getElementById('BtnSpeedtest').onclick = async function() {
+        if (!bleChar) { log('Não ligado ao BLE', 'err'); return; }
+
+        document.getElementById('BtnSpeedtest').disabled = true;
+        document.getElementById('speedtestPanel').classList.add('running');
+        document.getElementById('speedStatus').textContent = 'A testar...';
+        document.getElementById('speedStatus').className   = 'speed-status running';
+        document.getElementById('speedMeta').textContent   = '';
+        document.getElementById('speedUnitSub').textContent = '';
+        document.getElementById('speedNum').style.color    = 'var(--green)';
+
+        startSpeedCounter();
+
+        try {
+            await bleWrite('SPEEDTEST');   // com retry automático
+            log('Teste de velocidade iniciado...', 'info');
+        } catch(e) {
+            stopSpeedCounter(null);
+            document.getElementById('speedtestPanel').classList.remove('running');
+            document.getElementById('speedStatus').textContent = 'Erro ao enviar — tenta de novo';
+            document.getElementById('speedStatus').className   = 'speed-status err';
+            document.getElementById('BtnSpeedtest').disabled   = false;
+            setSpeedNum('--', false);
+            log('Erro ao enviar SPEEDTEST: ' + e.message, 'err');
+        }
+    };
+
+    // ── Processar dados recebidos via BLE ─────────────────────────────────────
+    function handleData(value) {
+        var raw = new TextDecoder('utf-8').decode(value).trim();
+
+        // RSSI BLE atual
+        var rssiMatch = raw.match(/^RSSI:(-?\d+)/);
+        if (rssiMatch) { updateBleRssi(parseInt(rssiMatch[1])); return; }
+
+        // Resultado da ligação WiFi
+        var wsMatch = raw.match(/^WIFISTATUS:(\w+)/);
+        if (wsMatch) {
+            var msg = document.getElementById('wifiStatusMsg');
+            var btn = document.getElementById('BtnWifiConnect');
+            if (wsMatch[1] === 'connected') {
+                msg.className   = 'wifi-status-msg success';
+                msg.textContent = 'Ligado com sucesso!';
+                log('WiFi ligado: ' + selectedSSID, 'ok');
+                document.getElementById('speedtestPanel').classList.add('visible');
+            } else {
+                msg.className   = 'wifi-status-msg fail';
+                msg.textContent = 'Falhou. Verifica a palavra-passe.';
+                log('WiFi falhou para ' + selectedSSID, 'err');
+            }
+            btn.disabled = false;
+            return;
         }
 
+        // SPEED:12.34:102400:800  (Mbps : bytes : ms)
+        var spMatch = raw.match(/^SPEED:([\d.]+)(?::(\d+):(\d+))?/);
+        if (spMatch) {
+            var mbps  = parseFloat(spMatch[1]);
+            var bytes = spMatch[2] ? parseInt(spMatch[2]) : null;
+            var ms    = spMatch[3] ? parseInt(spMatch[3]) : null;
+
+            stopSpeedCounter(mbps);
+
+            document.getElementById('speedtestPanel').classList.remove('running');
+            document.getElementById('speedStatus').textContent = 'Concluído';
+            document.getElementById('speedStatus').className   = 'speed-status done';
+
+            // cor do número conforme velocidade
+            var col = mbps >= 50 ? 'var(--green)' :
+                      mbps >= 10 ? 'var(--sig-ok)' : 'var(--sig-bad)';
+            document.getElementById('speedNum').style.color = col;
+
+            if (bytes && ms) {
+                document.getElementById('speedMeta').textContent =
+                    (bytes / 1024).toFixed(0) + ' KB';
+                document.getElementById('speedUnitSub').textContent =
+                    ms + ' ms';
+            }
+
+            document.getElementById('BtnSpeedtest').disabled = false;
+            log('Velocidade: ' + mbps.toFixed(2) + ' Mbps', 'ok');
+            return;
+        }
+
+        // Erro no teste de velocidade
+        if (raw.startsWith('SPEEDERROR')) {
+            stopSpeedCounter(null);
+            document.getElementById('speedtestPanel').classList.remove('running');
+            var reason = raw.split(':')[1] || 'desconhecido';
+            document.getElementById('speedStatus').textContent = 'Erro: ' + reason;
+            document.getElementById('speedStatus').className   = 'speed-status err';
+            document.getElementById('BtnSpeedtest').disabled   = false;
+            setSpeedNum('--', false);
+            log('Erro no teste: ' + reason, 'err');
+            return;
+        }
+
+        // Lista de redes WiFi
+        var lines  = raw.split('\n').filter(function(l) { return l.trim(); });
+        var parsed = [];
+        lines.forEach(function(line) {
+            var m = line.match(/^(\d+)\.\s+(.+?)\s+\((-?\d+)\s*dBm\)/);
+            if (m) parsed.push({ ssid: m[2], rssi: parseInt(m[3]) });
+        });
+        if (parsed.length) {
+            networks = parsed;
+            if (selectedSSID) {
+                var stillThere = null;
+                for (var i = 0; i < networks.length; i++)
+                    if (networks[i].ssid === selectedSSID) { stillThere = networks[i]; break; }
+                if (stillThere) showWifiDetail(stillThere);
+                else hideWifiDetail();
+            } else {
+                renderNetworks();
+            }
+            log('Redes WiFi atualizadas (' + parsed.length + ')', 'ok');
+        }
+    }
+
+    function showWifiDetail(net) {
+        selectedSSID = net.ssid;
         var s   = sigClass(net.rssi);
         var fd  = formatDist(calcDist(net.rssi));
         var col = s.cls === 'good' ? 'var(--sig-good)' : s.cls === 'ok' ? 'var(--sig-ok)' : 'var(--sig-bad)';
@@ -612,6 +823,12 @@
         var badge = document.getElementById('sourceBadge');
         badge.textContent = 'BLE';
         badge.classList.remove('wifi');
+        document.getElementById('wifiPassword').value       = '';
+        document.getElementById('wifiStatusMsg').className  = 'wifi-status-msg';
+        document.getElementById('wifiStatusMsg').textContent = '';
+        document.getElementById('BtnWifiConnect').disabled  = false;
+        resetSpeedtest();
+        document.getElementById('speedtestPanel').classList.remove('visible');
         renderNetworks();
     }
 
@@ -626,9 +843,6 @@
         var fd = formatDist(calcDist(rssi));
         document.getElementById('distVal').textContent  = fd.val;
         document.getElementById('distUnit').textContent = fd.unit;
-        rssiHistory.push(rssi);
-        if (rssiHistory.length > MAX_HIST) rssiHistory.shift();
-        drawChart();
     }
 
     function resetBleRssi() {
@@ -639,31 +853,6 @@
         document.getElementById('sigQuality').textContent = 'Sem sinal';
         for (var i = 1; i <= 5; i++)
             document.getElementById('bar' + i).className = 'bar b' + i;
-    }
-
-    function drawChart() {
-        var canvas = document.getElementById('rssiChart');
-        var W = canvas.offsetWidth || 360;
-        canvas.width = W; canvas.height = 70;
-        var ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, W, 70);
-        if (rssiHistory.length < 2) return;
-        var min = -100, max = -30;
-        var pts = rssiHistory.map(function(v, i) {
-            return { x: (i / (MAX_HIST - 1)) * W, y: 70 - ((v - min) / (max - min)) * 62 - 4 };
-        });
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, 70);
-        pts.forEach(function(p) { ctx.lineTo(p.x, p.y); });
-        ctx.lineTo(pts[pts.length-1].x, 70);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(94,43,255,0.08)';
-        ctx.fill();
-        ctx.beginPath();
-        pts.forEach(function(p, i) { i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y); });
-        ctx.strokeStyle = 'rgba(94,43,255,0.5)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
     }
 
     function renderNetworks() {
@@ -700,124 +889,12 @@
         });
     }
 
-    // ── Speed test UI ─────────────────────────────────────────────────────────
-    function resetSpeedtest() {
-        if (speedBarAnim) { clearInterval(speedBarAnim); speedBarAnim = null; }
-        document.getElementById('speedNum').textContent      = '--';
-        document.getElementById('speedBarFill').style.width  = '0%';
-        document.getElementById('speedStatus').textContent   = 'Pronto para testar';
-        document.getElementById('speedStatus').className     = 'speed-status';
-        document.getElementById('speedMeta').textContent     = '';
-        document.getElementById('BtnSpeedtest').disabled     = false;
-    }
-
-    document.getElementById('BtnSpeedtest').onclick = async function() {
-        if (!bleChar) { log('Nao ligado ao BLE', 'err'); return; }
-        document.getElementById('BtnSpeedtest').disabled    = true;
-        document.getElementById('speedNum').textContent     = '--';
-        document.getElementById('speedBarFill').style.width = '0%';
-        document.getElementById('speedStatus').textContent  = 'A testar...';
-        document.getElementById('speedStatus').className    = 'speed-status running';
-        document.getElementById('speedMeta').textContent    = '';
-        var pct = 0;
-        speedBarAnim = setInterval(function() {
-            pct = Math.min(pct + 1.5, 80);
-            document.getElementById('speedBarFill').style.width = pct + '%';
-        }, 200);
-        try {
-            await bleChar.writeValue(new TextEncoder().encode('SPEEDTEST'));
-            log('Teste de velocidade iniciado...', 'info');
-        } catch(e) {
-            clearInterval(speedBarAnim); speedBarAnim = null;
-            document.getElementById('speedStatus').textContent = 'Erro ao enviar';
-            document.getElementById('speedStatus').className   = 'speed-status err';
-            document.getElementById('BtnSpeedtest').disabled   = false;
-        }
-    };
-
-    // ── Handle incoming BLE data ──────────────────────────────────────────────
-    function handleData(value) {
-        var raw = new TextDecoder('utf-8').decode(value).trim();
-
-        var rssiMatch = raw.match(/^RSSI:(-?\d+)/);
-        if (rssiMatch) { updateBleRssi(parseInt(rssiMatch[1])); return; }
-
-        var wsMatch = raw.match(/^WIFISTATUS:(\w+)/);
-        if (wsMatch) {
-            var msg = document.getElementById('wifiStatusMsg');
-            var btn = document.getElementById('BtnWifiConnect');
-            var ssidName = selectedSSID || lastShownSSID || 'Desconhecida';
-            if (wsMatch[1] === 'connected') {
-                msg.className   = 'wifi-status-msg success';
-                msg.textContent = 'Ligado com sucesso!';
-                log('WiFi ligado: ' + ssidName, 'ok');
-                document.getElementById('speedtestPanel').classList.add('visible');
-            } else {
-                msg.className   = 'wifi-status-msg fail';
-                msg.textContent = 'Falhou. Verifica a palavra-passe.';
-                log('WiFi falhou para ' + ssidName, 'err');
-            }
-            btn.disabled = false;
-            return;
-        }
-
-        // SPEED:12.34:102400:800  (Mbps : bytes : ms)
-        var spMatch = raw.match(/^SPEED:([\d.]+)(?::(\d+):(\d+))?/);
-        if (spMatch) {
-            if (speedBarAnim) { clearInterval(speedBarAnim); speedBarAnim = null; }
-            var mbps    = parseFloat(spMatch[1]);
-            var bytes   = spMatch[2] ? parseInt(spMatch[2]) : null;
-            var ms      = spMatch[3] ? parseInt(spMatch[3]) : null;
-            var barPct  = Math.min((mbps / 100) * 100, 100);
-            document.getElementById('speedNum').textContent     = mbps.toFixed(2);
-            document.getElementById('speedBarFill').style.width = barPct + '%';
-            document.getElementById('speedStatus').textContent  = 'Concluido';
-            document.getElementById('speedStatus').className    = 'speed-status done';
-            if (bytes && ms)
-                document.getElementById('speedMeta').textContent =
-                    (bytes / 1024).toFixed(0) + ' KB em ' + ms + ' ms';
-            document.getElementById('BtnSpeedtest').disabled = false;
-            log('Velocidade: ' + mbps.toFixed(2) + ' Mbps', 'ok');
-            return;
-        }
-
-        if (raw.startsWith('SPEEDERROR')) {
-            if (speedBarAnim) { clearInterval(speedBarAnim); speedBarAnim = null; }
-            document.getElementById('speedBarFill').style.width = '0%';
-            document.getElementById('speedStatus').textContent  = 'Erro no teste';
-            document.getElementById('speedStatus').className    = 'speed-status err';
-            document.getElementById('BtnSpeedtest').disabled    = false;
-            log('Erro no teste de velocidade', 'err');
-            return;
-        }
-
-        var lines  = raw.split('\n').filter(function(l) { return l.trim(); });
-        var parsed = [];
-        lines.forEach(function(line) {
-            var m = line.match(/^(\d+)\.\s+(.+?)\s+\((-?\d+)\s*dBm\)/);
-            if (m) parsed.push({ ssid: m[2], rssi: parseInt(m[3]) });
-        });
-        if (parsed.length) {
-            networks = parsed;
-            if (selectedSSID) {
-                var stillThere = null;
-                for (var i = 0; i < networks.length; i++)
-                    if (networks[i].ssid === selectedSSID) { stillThere = networks[i]; break; }
-                if (stillThere) showWifiDetail(stillThere);
-                else hideWifiDetail();
-            } else {
-                renderNetworks();
-            }
-            log('Redes WiFi atualizadas (' + parsed.length + ')', 'ok');
-        }
-    }
-
     async function ligar() {
         try {
             document.getElementById('statusDot').className    = 'dot procurar';
             document.getElementById('statusText').textContent = 'A procurar ESP32...';
             document.getElementById('BtnLigar').disabled = true;
-            log('A iniciar ligacao BLE...', 'info');
+            log('A iniciar ligação BLE...', 'info');
             bleDevice = await navigator.bluetooth.requestDevice({
                 filters: [{ name: 'ESP32_Trabalho_SCSF' }],
                 optionalServices: [SERVICE_UUID]
@@ -842,7 +919,7 @@
         } catch(e) {
             log('Erro: ' + e.message, 'err');
             document.getElementById('statusDot').className    = 'dot desligado';
-            document.getElementById('statusText').textContent = 'Erro de ligacao';
+            document.getElementById('statusText').textContent = 'Erro de ligação';
             document.getElementById('BtnLigar').disabled      = false;
         }
     }
@@ -866,9 +943,9 @@
     }
 
     async function enviar(val) {
-        if (!bleChar) { log('Nao ligado', 'err'); return; }
+        if (!bleChar) { log('Não ligado', 'err'); return; }
         try {
-            await bleChar.writeValue(new TextEncoder().encode(val));
+            await bleWrite(val);
             log('Enviado: ' + val, 'ok');
         } catch(e) { log('Erro: ' + e.message, 'err'); }
     }
@@ -879,7 +956,7 @@
     };
 
     document.getElementById('BtnWifiConnect').onclick = async function() {
-        if (!bleChar) { log('Nao ligado ao BLE', 'err'); return; }
+        if (!bleChar) { log('Não ligado ao BLE', 'err'); return; }
         var pw  = document.getElementById('wifiPassword').value;
         var msg = document.getElementById('wifiStatusMsg');
         if (!selectedSSID) return;
@@ -890,7 +967,7 @@
         document.getElementById('speedtestPanel').classList.remove('visible');
         resetSpeedtest();
         try {
-            await bleChar.writeValue(new TextEncoder().encode(cmd));
+            await bleWrite(cmd);
             log('Comando WiFi enviado para: ' + selectedSSID, 'info');
         } catch(e) {
             msg.className   = 'wifi-status-msg fail';
@@ -905,7 +982,7 @@
 
     document.getElementById('BtnAtualizar').onclick = async function() {
         if (!bleChar) return;
-        log('A pedir atualizacao...', 'info');
+        log('A pedir atualização...', 'info');
         try { var v = await bleChar.readValue(); handleData(v); }
         catch(e) { log('Erro: ' + e.message, 'err'); }
     };
@@ -929,9 +1006,9 @@
     if (!navigator.bluetooth) {
         document.getElementById('compatWarn').style.display = 'block';
         document.getElementById('BtnLigar').disabled = true;
-        log('Web Bluetooth nao disponivel', 'err');
+        log('Web Bluetooth não disponível', 'err');
     } else {
-        log('Pronto - clica em Ligar para conectar ao ESP32', 'info');
+        log('Pronto — clica em Ligar para conectar ao ESP32', 'info');
     }
 </script>
 </body>
