@@ -119,7 +119,6 @@
         .btn:disabled   { opacity: 0.3; cursor: not-allowed; }
         .btn:active:not(:disabled) { transform: scale(0.97); }
 
-        /* ── BLE RSSI view ── */
         .rssi-center {
             display: flex; align-items: flex-end;
             justify-content: center; gap: 6px;
@@ -157,9 +156,7 @@
         }
         canvas#rssiChart { width:100%; height:70px; display:block; margin-top:8px; }
 
-        /* ── WiFi detail view ── */
         #wifiDetail { display: none; }
-        #wifiDetail.visible { display: block; }
 
         .wifi-detail-header {
             display: flex; align-items: center;
@@ -181,9 +178,7 @@
             display: flex; align-items: center;
             gap: 10px; margin-bottom: 14px;
         }
-        .wifi-bars {
-            display: flex; align-items: flex-end; gap: 4px; height: 28px;
-        }
+        .wifi-bars { display: flex; align-items: flex-end; gap: 4px; height: 28px; }
         .wbar { width: 16px; border-radius: 3px 3px 0 0; background: #ddd; transition: background 0.4s; }
         .wbar.b1{height:20%} .wbar.b2{height:40%} .wbar.b3{height:60%} .wbar.b4{height:80%} .wbar.b5{height:100%}
         .wbar.on-good { background: var(--sig-good); }
@@ -194,9 +189,7 @@
         .wifi-stats {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
         }
-        .wifi-stat {
-            background: #eeebe8; border-radius: 12px; padding: 12px 14px;
-        }
+        .wifi-stat { background: #eeebe8; border-radius: 12px; padding: 12px 14px; }
         .wifi-stat-label {
             font-size: 0.62rem; font-weight: 600; letter-spacing: 2px;
             text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
@@ -205,16 +198,12 @@
             font-family: var(--mono); font-size: 1.5rem;
             font-weight: 700; color: var(--purple); transition: color 0.4s;
         }
-        .wifi-stat-unit {
-            font-family: var(--mono); font-size: 0.78rem;
-            color: var(--text-dim); margin-left: 3px;
-        }
+        .wifi-stat-unit { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); margin-left: 3px; }
         .wifi-formula {
             font-family: var(--mono); font-size: 0.62rem; color: var(--text-dim);
             border-top: 1px solid #e0ddd9; padding-top: 12px; text-align: center;
         }
 
-        /* ── Network list (flat) ── */
         .net-list { display: flex; flex-direction: column; gap: 6px; }
         .net-item {
             background: #eeebe8; border-radius: 12px;
@@ -251,15 +240,16 @@
         .le.info .lm { color: var(--purple); }
         .le.warn .lm { color: var(--sig-ok); }
 
-        input[type="text"] {
+        input[type="text"],
+        input[type="password"] {
             width: 100%; padding: 10px 14px;
             background: #eeebe8; border: none; border-radius: 10px;
             color: var(--text); font-family: var(--mono); font-size: 0.85rem;
             margin-bottom: 10px; outline: none; transition: box-shadow 0.2s;
         }
-        input[type="text"]:focus { box-shadow: 0 0 0 2px var(--purple); }
-        input[type="text"]::placeholder { color: #aaa; }
-        input[type="text"]:disabled { opacity: 0.4; }
+        input[type="text"]:focus, input[type="password"]:focus { box-shadow: 0 0 0 2px var(--purple); }
+        input[type="text"]::placeholder, input[type="password"]::placeholder { color: #aaa; }
+        input[type="text"]:disabled, input[type="password"]:disabled { opacity: 0.4; }
 
         .compat-warn {
             background: #fff8e1; border-left: 3px solid var(--sig-ok);
@@ -288,16 +278,9 @@
             font-size: 0.62rem; font-weight: 600; letter-spacing: 2px;
             text-transform: uppercase; color: var(--purple); margin-bottom: 10px;
         }
-        .wifi-pw-row {
-            display: flex; gap: 8px; align-items: center; margin-bottom: 10px;
-        }
-        .wifi-pw-wrap {
-            flex: 1; position: relative;
-        }
-        .wifi-pw-wrap input {
-            margin-bottom: 0; padding-right: 38px;
-            border: 1.5px solid #c4b5fd;
-        }
+        .wifi-pw-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .wifi-pw-wrap { flex: 1; position: relative; }
+        .wifi-pw-wrap input { margin-bottom: 0; padding-right: 38px; border: 1.5px solid #c4b5fd; }
         .wifi-pw-wrap input:focus { box-shadow: 0 0 0 2px var(--purple); }
         .pw-toggle {
             position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
@@ -314,6 +297,7 @@
         .btn-wifi-connect:hover:not(:disabled) { background: #4a1fe0; }
         .btn-wifi-connect:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-wifi-connect:active:not(:disabled) { transform: scale(0.97); }
+
         .wifi-status-msg {
             font-family: var(--mono); font-size: 0.72rem;
             padding: 8px 10px; border-radius: 8px;
@@ -322,6 +306,64 @@
         .wifi-status-msg.connecting { display: block; background: #fef3c7; color: #b45309; }
         .wifi-status-msg.success    { display: block; background: #dcfce7; color: #15803d; }
         .wifi-status-msg.fail       { display: block; background: #fee2e2; color: #b91c1c; }
+
+        /* ── Speed Test Panel ── */
+        .speedtest-panel {
+            margin-top: 12px;
+            background: #02010A;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: none;
+            animation: fadeSlideIn 0.25s ease;
+        }
+        .speedtest-panel.visible { display: block; }
+        .speedtest-top {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 10px;
+        }
+        .speedtest-label {
+            font-size: 0.62rem; font-weight: 600; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--green);
+        }
+        .btn-speedtest {
+            background: var(--green); color: var(--bg);
+            font-family: var(--mono); font-size: 0.65rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            border: none; border-radius: 8px; padding: 6px 14px;
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-speedtest:hover:not(:disabled) { background: #28e55a; }
+        .btn-speedtest:disabled { opacity: 0.35; cursor: not-allowed; }
+        .btn-speedtest:active:not(:disabled) { transform: scale(0.97); }
+
+        .speed-result {
+            display: flex; align-items: flex-end;
+            justify-content: center; gap: 6px; padding: 6px 0 2px;
+        }
+        .speed-num {
+            font-family: var(--mono); font-size: 2.8rem;
+            font-weight: 700; line-height: 1;
+            color: var(--green); transition: color 0.4s;
+        }
+        .speed-unit { font-family: var(--mono); font-size: 0.85rem; color: #444; padding-bottom: 5px; }
+
+        .speed-bar-wrap {
+            height: 4px; background: #1a1a2e; border-radius: 2px;
+            margin: 10px 0 6px; overflow: hidden;
+        }
+        .speed-bar-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--purple), var(--green));
+            border-radius: 2px; transition: width 0.5s ease;
+        }
+        .speed-footer {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .speed-status { font-family: var(--mono); font-size: 0.65rem; color: #444; }
+        .speed-status.running { color: var(--sig-ok); }
+        .speed-status.done    { color: var(--green); }
+        .speed-status.err     { color: var(--sig-bad); }
+        .speed-meta { font-family: var(--mono); font-size: 0.65rem; color: #333; }
     </style>
 </head>
 <body>
@@ -376,7 +418,7 @@
                     <span class="dist-num" id="distVal">--</span>
                     <span class="dist-unit" id="distUnit">m</span>
                 </div>
-                <div class="dist-formula">d = 10 ^ ((TxPower − RSSI) / (10 × n)) &nbsp;·&nbsp; n=2.5 &nbsp;·&nbsp; TxPower=−59 dBm</div>
+                <div class="dist-formula">d = 10 ^ ((TxPower &minus; RSSI) / (10 &times; n)) &nbsp;&middot;&nbsp; n=2.5 &nbsp;&middot;&nbsp; TxPower=&minus;59 dBm</div>
                 <canvas id="rssiChart"></canvas>
             </div>
         </div>
@@ -384,12 +426,12 @@
         <!-- Vista WiFi (rede selecionada) -->
         <div id="wifiDetail">
             <div class="wifi-detail-header">
-                <span class="wifi-ssid" id="wifiSsid">—</span>
-                <button class="wifi-back" id="wifiBack">← Voltar</button>
+                <span class="wifi-ssid" id="wifiSsid">&#x2014;</span>
+                <button class="wifi-back" id="wifiBack">&#x2190; Voltar</button>
             </div>
             <div class="wifi-qual-row">
                 <div class="wifi-bars" id="wifiBars"></div>
-                <span class="wifi-qual-text" id="wifiQualText">—</span>
+                <span class="wifi-qual-text" id="wifiQualText">&#x2014;</span>
             </div>
             <div class="wifi-stats">
                 <div class="wifi-stat">
@@ -400,14 +442,14 @@
                     </div>
                 </div>
                 <div class="wifi-stat">
-                    <div class="wifi-stat-label">Distância</div>
+                    <div class="wifi-stat-label">Dist&acirc;ncia</div>
                     <div>
                         <span class="wifi-stat-val" id="wifiDistVal">--</span>
                         <span class="wifi-stat-unit" id="wifiDistUnit">m</span>
                     </div>
                 </div>
             </div>
-            <div class="wifi-formula" id="wifiFormula">—</div>
+            <div class="wifi-formula" id="wifiFormula">&#x2014;</div>
 
             <!-- WiFi Connect Panel -->
             <div class="wifi-connect-panel" id="wifiConnectPanel">
@@ -415,18 +457,37 @@
                 <div class="wifi-pw-row">
                     <div class="wifi-pw-wrap">
                         <input type="password" id="wifiPassword" placeholder="Palavra-passe..." autocomplete="off">
-                        <button class="pw-toggle" id="pwToggle" title="Mostrar/ocultar">👁</button>
+                        <button class="pw-toggle" id="pwToggle" title="Mostrar/ocultar">&#x1F441;</button>
                     </div>
                     <button class="btn-wifi-connect" id="BtnWifiConnect">Ligar</button>
                 </div>
                 <div class="wifi-status-msg" id="wifiStatusMsg"></div>
+
+                <!-- Speed Test (appears after successful connect) -->
+                <div class="speedtest-panel" id="speedtestPanel">
+                    <div class="speedtest-top">
+                        <span class="speedtest-label">Velocidade Download</span>
+                        <button class="btn-speedtest" id="BtnSpeedtest">Testar</button>
+                    </div>
+                    <div class="speed-result">
+                        <span class="speed-num" id="speedNum">--</span>
+                        <span class="speed-unit">Mbps</span>
+                    </div>
+                    <div class="speed-bar-wrap">
+                        <div class="speed-bar-fill" id="speedBarFill"></div>
+                    </div>
+                    <div class="speed-footer">
+                        <span class="speed-status" id="speedStatus">Pronto para testar</span>
+                        <span class="speed-meta" id="speedMeta"></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Redes WiFi -->
     <div class="card">
-        <div class="card-title">Redes WiFi Disponíveis</div>
+        <div class="card-title">Redes WiFi Dispon&iacute;veis</div>
         <div class="net-list" id="netList">
             <div class="empty-state">A aguardar dados do ESP32...</div>
         </div>
@@ -462,6 +523,7 @@
     var MAX_HIST     = 30;
     var selectedSSID = null;
     var networks     = [];
+    var speedBarAnim = null;
 
     function ts() {
         var d = new Date();
@@ -481,9 +543,7 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    function calcDist(rssi) {
-        return Math.pow(10, (-59 - rssi) / 25);
-    }
+    function calcDist(rssi) { return Math.pow(10, (-59 - rssi) / 25); }
 
     function formatDist(d) {
         if (d < 1)    return { val: (d * 100).toFixed(0), unit: 'cm' };
@@ -494,24 +554,21 @@
     function sigClass(rssi) {
         if (rssi >= -60) return { bars: 5, cls: 'good', label: 'Excelente' };
         if (rssi >= -67) return { bars: 4, cls: 'good', label: 'Bom' };
-        if (rssi >= -75) return { bars: 3, cls: 'ok',   label: 'Razoável' };
+        if (rssi >= -75) return { bars: 3, cls: 'ok',   label: 'Razoavel' };
         if (rssi >= -82) return { bars: 2, cls: 'bad',  label: 'Fraco' };
         return { bars: 1, cls: 'bad', label: 'Muito fraco' };
     }
 
-    // ── Mostrar detalhe da rede no card de sinal ──────────────────────────────
     function showWifiDetail(net) {
         selectedSSID = net.ssid;
         var s   = sigClass(net.rssi);
         var fd  = formatDist(calcDist(net.rssi));
         var col = s.cls === 'good' ? 'var(--sig-good)' : s.cls === 'ok' ? 'var(--sig-ok)' : 'var(--sig-bad)';
 
-        document.getElementById('bleView').style.display = 'none';
+        document.getElementById('bleView').style.display    = 'none';
         document.getElementById('wifiDetail').style.display = 'block';
-
-        var title = document.getElementById('signalCardTitle');
+        document.getElementById('signalCardTitle').textContent = 'Rede Selecionada';
         var badge = document.getElementById('sourceBadge');
-        title.textContent = 'Rede Selecionada';
         badge.textContent = 'WiFi';
         badge.classList.add('wifi');
 
@@ -523,7 +580,7 @@
         document.getElementById('wifiDistVal').style.color  = col;
         document.getElementById('wifiDistUnit').textContent = fd.unit;
         document.getElementById('wifiFormula').textContent  =
-            'd = 10 ^ ((-59 - (' + net.rssi + ')) / 25)  ·  resultado: ' + fd.val + ' ' + fd.unit;
+            'd = 10 ^ ((-59 - (' + net.rssi + ')) / 25)  resultado: ' + fd.val + ' ' + fd.unit;
 
         var barsEl = document.getElementById('wifiBars');
         barsEl.innerHTML = '';
@@ -532,7 +589,6 @@
             b.className = 'wbar b' + i + (i <= s.bars ? ' on-' + s.cls : '');
             barsEl.appendChild(b);
         }
-
         renderNetworks();
     }
 
@@ -544,24 +600,22 @@
         var badge = document.getElementById('sourceBadge');
         badge.textContent = 'BLE';
         badge.classList.remove('wifi');
-        // Reset connect panel
-        document.getElementById('wifiPassword').value      = '';
-        document.getElementById('wifiStatusMsg').className = 'wifi-status-msg';
+        document.getElementById('wifiPassword').value       = '';
+        document.getElementById('wifiStatusMsg').className  = 'wifi-status-msg';
         document.getElementById('wifiStatusMsg').textContent = '';
         document.getElementById('BtnWifiConnect').disabled  = false;
+        resetSpeedtest();
+        document.getElementById('speedtestPanel').classList.remove('visible');
         renderNetworks();
     }
 
-    // ── BLE RSSI ──────────────────────────────────────────────────────────────
     function updateBleRssi(rssi) {
         var s   = sigClass(rssi);
         var col = s.cls === 'good' ? 'var(--sig-good)' : s.cls === 'ok' ? 'var(--sig-ok)' : 'var(--sig-bad)';
-        document.getElementById('bleRssi').textContent    = rssi;
-        document.getElementById('bleRssi').style.color    = col;
-        for (var i = 1; i <= 5; i++) {
-            document.getElementById('bar' + i).className =
-                'bar b' + i + (i <= s.bars ? ' on-' + s.cls : '');
-        }
+        document.getElementById('bleRssi').textContent = rssi;
+        document.getElementById('bleRssi').style.color = col;
+        for (var i = 1; i <= 5; i++)
+            document.getElementById('bar' + i).className = 'bar b' + i + (i <= s.bars ? ' on-' + s.cls : '');
         document.getElementById('sigQuality').textContent = s.label + ' (' + rssi + ' dBm)';
         var fd = formatDist(calcDist(rssi));
         document.getElementById('distVal').textContent  = fd.val;
@@ -606,7 +660,6 @@
         ctx.stroke();
     }
 
-    // ── Lista de redes (plana, sem dropdown) ──────────────────────────────────
     function renderNetworks() {
         var list = document.getElementById('netList');
         if (!networks.length) {
@@ -619,14 +672,10 @@
             var s       = sigClass(net.rssi);
             var pillCls = s.cls === 'good' ? 'pill-good' : s.cls === 'ok' ? 'pill-ok' : 'pill-bad';
             var isSel   = selectedSSID === net.ssid;
-
-            // Mini barras compactas (4 barras)
             var miniCount = Math.round(s.bars * 4 / 5);
             var miniBars  = '';
-            for (var i = 1; i <= 4; i++) {
+            for (var i = 1; i <= 4; i++)
                 miniBars += '<div class="nmb b' + i + (i <= miniCount ? ' on-' + s.cls : '') + '"></div>';
-            }
-
             var item = document.createElement('div');
             item.className = 'net-item' + (isSel ? ' selected' : '');
             item.innerHTML =
@@ -635,44 +684,103 @@
                     '<div class="net-mini-bars">' + miniBars + '</div>' +
                     '<span class="net-pill ' + pillCls + '">' + net.rssi + ' dBm</span>' +
                 '</div>';
-
             (function(n) {
                 item.onclick = function() {
                     if (selectedSSID === n.ssid) hideWifiDetail();
                     else showWifiDetail(n);
                 };
             })(net);
-
             list.appendChild(item);
         });
     }
 
-    // ── Processar dados BLE recebidos ─────────────────────────────────────────
+    // ── Speed test UI ─────────────────────────────────────────────────────────
+    function resetSpeedtest() {
+        if (speedBarAnim) { clearInterval(speedBarAnim); speedBarAnim = null; }
+        document.getElementById('speedNum').textContent      = '--';
+        document.getElementById('speedBarFill').style.width  = '0%';
+        document.getElementById('speedStatus').textContent   = 'Pronto para testar';
+        document.getElementById('speedStatus').className     = 'speed-status';
+        document.getElementById('speedMeta').textContent     = '';
+        document.getElementById('BtnSpeedtest').disabled     = false;
+    }
+
+    document.getElementById('BtnSpeedtest').onclick = async function() {
+        if (!bleChar) { log('Nao ligado ao BLE', 'err'); return; }
+        document.getElementById('BtnSpeedtest').disabled    = true;
+        document.getElementById('speedNum').textContent     = '--';
+        document.getElementById('speedBarFill').style.width = '0%';
+        document.getElementById('speedStatus').textContent  = 'A testar...';
+        document.getElementById('speedStatus').className    = 'speed-status running';
+        document.getElementById('speedMeta').textContent    = '';
+        var pct = 0;
+        speedBarAnim = setInterval(function() {
+            pct = Math.min(pct + 1.5, 80);
+            document.getElementById('speedBarFill').style.width = pct + '%';
+        }, 200);
+        try {
+            await bleChar.writeValue(new TextEncoder().encode('SPEEDTEST'));
+            log('Teste de velocidade iniciado...', 'info');
+        } catch(e) {
+            clearInterval(speedBarAnim); speedBarAnim = null;
+            document.getElementById('speedStatus').textContent = 'Erro ao enviar';
+            document.getElementById('speedStatus').className   = 'speed-status err';
+            document.getElementById('BtnSpeedtest').disabled   = false;
+        }
+    };
+
+    // ── Handle incoming BLE data ──────────────────────────────────────────────
     function handleData(value) {
         var raw = new TextDecoder('utf-8').decode(value).trim();
 
         var rssiMatch = raw.match(/^RSSI:(-?\d+)/);
-        if (rssiMatch) {
-            updateBleRssi(parseInt(rssiMatch[1]));
-            return;
-        }
+        if (rssiMatch) { updateBleRssi(parseInt(rssiMatch[1])); return; }
 
-        // WiFi connection result: WIFISTATUS:connected:192.168.1.x  or  WIFISTATUS:failed
-        var wsMatch = raw.match(/^WIFISTATUS:(\w+)(?::(.+))?/);
+        var wsMatch = raw.match(/^WIFISTATUS:(\w+)/);
         if (wsMatch) {
             var msg = document.getElementById('wifiStatusMsg');
             var btn = document.getElementById('BtnWifiConnect');
             if (wsMatch[1] === 'connected') {
-                var ip = wsMatch[2] || '?';
                 msg.className   = 'wifi-status-msg success';
-                msg.textContent = '✓ Ligado! IP: ' + ip;
-                log('WiFi ligado ao ' + selectedSSID + ' — IP: ' + ip, 'ok');
+                msg.textContent = 'Ligado com sucesso!';
+                log('WiFi ligado: ' + selectedSSID, 'ok');
+                document.getElementById('speedtestPanel').classList.add('visible');
             } else {
                 msg.className   = 'wifi-status-msg fail';
-                msg.textContent = '✗ Falhou. Verifica a palavra-passe.';
+                msg.textContent = 'Falhou. Verifica a palavra-passe.';
                 log('WiFi falhou para ' + selectedSSID, 'err');
             }
             btn.disabled = false;
+            return;
+        }
+
+        // SPEED:12.34:102400:800  (Mbps : bytes : ms)
+        var spMatch = raw.match(/^SPEED:([\d.]+)(?::(\d+):(\d+))?/);
+        if (spMatch) {
+            if (speedBarAnim) { clearInterval(speedBarAnim); speedBarAnim = null; }
+            var mbps    = parseFloat(spMatch[1]);
+            var bytes   = spMatch[2] ? parseInt(spMatch[2]) : null;
+            var ms      = spMatch[3] ? parseInt(spMatch[3]) : null;
+            var barPct  = Math.min((mbps / 100) * 100, 100);
+            document.getElementById('speedNum').textContent     = mbps.toFixed(2);
+            document.getElementById('speedBarFill').style.width = barPct + '%';
+            document.getElementById('speedStatus').textContent  = 'Concluido';
+            document.getElementById('speedStatus').className    = 'speed-status done';
+            if (bytes && ms)
+                document.getElementById('speedMeta').textContent =
+                    (bytes / 1024).toFixed(0) + ' KB em ' + ms + ' ms';
+            document.getElementById('BtnSpeedtest').disabled = false;
+            log('Velocidade: ' + mbps.toFixed(2) + ' Mbps', 'ok');
+            return;
+        }
+
+        if (raw.startsWith('SPEEDERROR')) {
+            if (speedBarAnim) { clearInterval(speedBarAnim); speedBarAnim = null; }
+            document.getElementById('speedBarFill').style.width = '0%';
+            document.getElementById('speedStatus').textContent  = 'Erro no teste';
+            document.getElementById('speedStatus').className    = 'speed-status err';
+            document.getElementById('BtnSpeedtest').disabled    = false;
+            log('Erro no teste de velocidade', 'err');
             return;
         }
 
@@ -684,12 +792,10 @@
         });
         if (parsed.length) {
             networks = parsed;
-            // Atualiza o painel de detalhe se a rede ainda estiver na lista
             if (selectedSSID) {
                 var stillThere = null;
-                for (var i = 0; i < networks.length; i++) {
+                for (var i = 0; i < networks.length; i++)
                     if (networks[i].ssid === selectedSSID) { stillThere = networks[i]; break; }
-                }
                 if (stillThere) showWifiDetail(stillThere);
                 else hideWifiDetail();
             } else {
@@ -699,31 +805,23 @@
         }
     }
 
-    // ── Ligar BLE ─────────────────────────────────────────────────────────────
     async function ligar() {
         try {
             document.getElementById('statusDot').className    = 'dot procurar';
             document.getElementById('statusText').textContent = 'A procurar ESP32...';
             document.getElementById('BtnLigar').disabled = true;
-            log('A iniciar ligação BLE...', 'info');
-
+            log('A iniciar ligacao BLE...', 'info');
             bleDevice = await navigator.bluetooth.requestDevice({
                 filters: [{ name: 'ESP32_Trabalho_SCSF' }],
                 optionalServices: [SERVICE_UUID]
             });
-
             bleDevice.addEventListener('gattserverdisconnected', desligarUI);
             document.getElementById('statusText').textContent = 'A ligar...';
-
             var server  = await bleDevice.gatt.connect();
             var service = await server.getPrimaryService(SERVICE_UUID);
             bleChar     = await service.getCharacteristic(CHARACTERISTIC_UUID);
-
-            bleChar.addEventListener('characteristicvaluechanged', function(e) {
-                handleData(e.target.value);
-            });
+            bleChar.addEventListener('characteristicvaluechanged', function(e) { handleData(e.target.value); });
             await bleChar.startNotifications();
-
             document.getElementById('statusDot').className    = 'dot ligado';
             document.getElementById('statusText').textContent = 'Ligado ao ESP32';
             document.getElementById('BtnLigar').disabled      = true;
@@ -732,14 +830,12 @@
             document.getElementById('BtnEnviar').disabled     = false;
             document.getElementById('TbxComando').disabled    = false;
             log('Ligado com sucesso', 'ok');
-
             var initial = await bleChar.readValue();
             handleData(initial);
-
         } catch(e) {
             log('Erro: ' + e.message, 'err');
             document.getElementById('statusDot').className    = 'dot desligado';
-            document.getElementById('statusText').textContent = 'Erro de ligação';
+            document.getElementById('statusText').textContent = 'Erro de ligacao';
             document.getElementById('BtnLigar').disabled      = false;
         }
     }
@@ -763,36 +859,35 @@
     }
 
     async function enviar(val) {
-        if (!bleChar) { log('Não ligado', 'err'); return; }
+        if (!bleChar) { log('Nao ligado', 'err'); return; }
         try {
             await bleChar.writeValue(new TextEncoder().encode(val));
             log('Enviado: ' + val, 'ok');
         } catch(e) { log('Erro: ' + e.message, 'err'); }
     }
 
-    // ── WiFi Connect Panel ────────────────────────────────────────────────────
     document.getElementById('pwToggle').onclick = function() {
         var inp = document.getElementById('wifiPassword');
         inp.type = inp.type === 'password' ? 'text' : 'password';
     };
 
     document.getElementById('BtnWifiConnect').onclick = async function() {
-        if (!bleChar) { log('Não ligado ao BLE', 'err'); return; }
+        if (!bleChar) { log('Nao ligado ao BLE', 'err'); return; }
         var pw  = document.getElementById('wifiPassword').value;
         var msg = document.getElementById('wifiStatusMsg');
         if (!selectedSSID) return;
-
         var cmd = 'WIFI:' + selectedSSID + ':' + pw;
-        msg.className    = 'wifi-status-msg connecting';
-        msg.textContent  = '⏳ A ligar a ' + selectedSSID + '...';
+        msg.className   = 'wifi-status-msg connecting';
+        msg.textContent = 'A ligar a ' + selectedSSID + '...';
         document.getElementById('BtnWifiConnect').disabled = true;
-
+        document.getElementById('speedtestPanel').classList.remove('visible');
+        resetSpeedtest();
         try {
             await bleChar.writeValue(new TextEncoder().encode(cmd));
             log('Comando WiFi enviado para: ' + selectedSSID, 'info');
         } catch(e) {
             msg.className   = 'wifi-status-msg fail';
-            msg.textContent = '✗ Erro ao enviar comando: ' + e.message;
+            msg.textContent = 'Erro ao enviar: ' + e.message;
             document.getElementById('BtnWifiConnect').disabled = false;
         }
     };
@@ -803,11 +898,9 @@
 
     document.getElementById('BtnAtualizar').onclick = async function() {
         if (!bleChar) return;
-        log('A pedir atualização...', 'info');
-        try {
-            var v = await bleChar.readValue();
-            handleData(v);
-        } catch(e) { log('Erro: ' + e.message, 'err'); }
+        log('A pedir atualizacao...', 'info');
+        try { var v = await bleChar.readValue(); handleData(v); }
+        catch(e) { log('Erro: ' + e.message, 'err'); }
     };
 
     document.getElementById('BtnEnviar').onclick = function() {
@@ -829,11 +922,10 @@
     if (!navigator.bluetooth) {
         document.getElementById('compatWarn').style.display = 'block';
         document.getElementById('BtnLigar').disabled = true;
-        log('Web Bluetooth não disponível', 'err');
+        log('Web Bluetooth nao disponivel', 'err');
     } else {
-        log('Pronto — clica em Ligar para conectar ao ESP32', 'info');
+        log('Pronto - clica em Ligar para conectar ao ESP32', 'info');
     }
-
 </script>
 </body>
 </html>
