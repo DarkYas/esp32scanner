@@ -270,6 +270,58 @@
             text-align: center; padding: 20px 0;
             font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);
         }
+
+        /* ── WiFi Connect Panel ── */
+        .wifi-connect-panel {
+            margin-top: 14px;
+            background: #f0edff;
+            border-radius: 14px;
+            padding: 14px;
+            border: 1.5px solid #c4b5fd;
+            animation: fadeSlideIn 0.2s ease;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .wifi-connect-label {
+            font-size: 0.62rem; font-weight: 600; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--purple); margin-bottom: 10px;
+        }
+        .wifi-pw-row {
+            display: flex; gap: 8px; align-items: center; margin-bottom: 10px;
+        }
+        .wifi-pw-wrap {
+            flex: 1; position: relative;
+        }
+        .wifi-pw-wrap input {
+            margin-bottom: 0; padding-right: 38px;
+            border: 1.5px solid #c4b5fd;
+        }
+        .wifi-pw-wrap input:focus { box-shadow: 0 0 0 2px var(--purple); }
+        .pw-toggle {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer;
+            font-size: 0.9rem; color: var(--text-dim); padding: 2px;
+        }
+        .btn-wifi-connect {
+            background: var(--purple); color: #fff;
+            font-family: var(--mono); font-size: 0.72rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            border: none; border-radius: 10px; padding: 10px 16px;
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-wifi-connect:hover:not(:disabled) { background: #4a1fe0; }
+        .btn-wifi-connect:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-wifi-connect:active:not(:disabled) { transform: scale(0.97); }
+        .wifi-status-msg {
+            font-family: var(--mono); font-size: 0.72rem;
+            padding: 8px 10px; border-radius: 8px;
+            display: none; text-align: center; line-height: 1.5;
+        }
+        .wifi-status-msg.connecting { display: block; background: #fef3c7; color: #b45309; }
+        .wifi-status-msg.success    { display: block; background: #dcfce7; color: #15803d; }
+        .wifi-status-msg.fail       { display: block; background: #fee2e2; color: #b91c1c; }
     </style>
 </head>
 <body>
@@ -356,6 +408,19 @@
                 </div>
             </div>
             <div class="wifi-formula" id="wifiFormula">—</div>
+
+            <!-- WiFi Connect Panel -->
+            <div class="wifi-connect-panel" id="wifiConnectPanel">
+                <div class="wifi-connect-label">Ligar a esta rede</div>
+                <div class="wifi-pw-row">
+                    <div class="wifi-pw-wrap">
+                        <input type="password" id="wifiPassword" placeholder="Palavra-passe..." autocomplete="off">
+                        <button class="pw-toggle" id="pwToggle" title="Mostrar/ocultar">👁</button>
+                    </div>
+                    <button class="btn-wifi-connect" id="BtnWifiConnect">Ligar</button>
+                </div>
+                <div class="wifi-status-msg" id="wifiStatusMsg"></div>
+            </div>
         </div>
     </div>
 
@@ -479,6 +544,11 @@
         var badge = document.getElementById('sourceBadge');
         badge.textContent = 'BLE';
         badge.classList.remove('wifi');
+        // Reset connect panel
+        document.getElementById('wifiPassword').value      = '';
+        document.getElementById('wifiStatusMsg').className = 'wifi-status-msg';
+        document.getElementById('wifiStatusMsg').textContent = '';
+        document.getElementById('BtnWifiConnect').disabled  = false;
         renderNetworks();
     }
 
@@ -587,6 +657,25 @@
             return;
         }
 
+        // WiFi connection result: WIFISTATUS:connected:192.168.1.x  or  WIFISTATUS:failed
+        var wsMatch = raw.match(/^WIFISTATUS:(\w+)(?::(.+))?/);
+        if (wsMatch) {
+            var msg = document.getElementById('wifiStatusMsg');
+            var btn = document.getElementById('BtnWifiConnect');
+            if (wsMatch[1] === 'connected') {
+                var ip = wsMatch[2] || '?';
+                msg.className   = 'wifi-status-msg success';
+                msg.textContent = '✓ Ligado! IP: ' + ip;
+                log('WiFi ligado ao ' + selectedSSID + ' — IP: ' + ip, 'ok');
+            } else {
+                msg.className   = 'wifi-status-msg fail';
+                msg.textContent = '✗ Falhou. Verifica a palavra-passe.';
+                log('WiFi falhou para ' + selectedSSID, 'err');
+            }
+            btn.disabled = false;
+            return;
+        }
+
         var lines  = raw.split('\n').filter(function(l) { return l.trim(); });
         var parsed = [];
         lines.forEach(function(line) {
@@ -681,6 +770,33 @@
         } catch(e) { log('Erro: ' + e.message, 'err'); }
     }
 
+    // ── WiFi Connect Panel ────────────────────────────────────────────────────
+    document.getElementById('pwToggle').onclick = function() {
+        var inp = document.getElementById('wifiPassword');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+    };
+
+    document.getElementById('BtnWifiConnect').onclick = async function() {
+        if (!bleChar) { log('Não ligado ao BLE', 'err'); return; }
+        var pw  = document.getElementById('wifiPassword').value;
+        var msg = document.getElementById('wifiStatusMsg');
+        if (!selectedSSID) return;
+
+        var cmd = 'WIFI:' + selectedSSID + ':' + pw;
+        msg.className    = 'wifi-status-msg connecting';
+        msg.textContent  = '⏳ A ligar a ' + selectedSSID + '...';
+        document.getElementById('BtnWifiConnect').disabled = true;
+
+        try {
+            await bleChar.writeValue(new TextEncoder().encode(cmd));
+            log('Comando WiFi enviado para: ' + selectedSSID, 'info');
+        } catch(e) {
+            msg.className   = 'wifi-status-msg fail';
+            msg.textContent = '✗ Erro ao enviar comando: ' + e.message;
+            document.getElementById('BtnWifiConnect').disabled = false;
+        }
+    };
+
     document.getElementById('BtnLigar').onclick    = ligar;
     document.getElementById('BtnDesligar').onclick = desligar;
     document.getElementById('wifiBack').onclick    = hideWifiDetail;
@@ -717,6 +833,7 @@
     } else {
         log('Pronto — clica em Ligar para conectar ao ESP32', 'info');
     }
+
 </script>
 </body>
 </html>
