@@ -522,6 +522,7 @@
     var rssiHistory  = [];
     var MAX_HIST     = 30;
     var selectedSSID = null;
+    var lastShownSSID = null;
     var networks     = [];
     var speedBarAnim = null;
 
@@ -561,6 +562,17 @@
 
     function showWifiDetail(net) {
         selectedSSID = net.ssid;
+        
+        if (lastShownSSID !== net.ssid) {
+            document.getElementById('wifiPassword').value       = '';
+            document.getElementById('wifiStatusMsg').className  = 'wifi-status-msg';
+            document.getElementById('wifiStatusMsg').textContent = '';
+            document.getElementById('BtnWifiConnect').disabled  = false;
+            resetSpeedtest();
+            document.getElementById('speedtestPanel').classList.remove('visible');
+            lastShownSSID = net.ssid;
+        }
+
         var s   = sigClass(net.rssi);
         var fd  = formatDist(calcDist(net.rssi));
         var col = s.cls === 'good' ? 'var(--sig-good)' : s.cls === 'ok' ? 'var(--sig-ok)' : 'var(--sig-bad)';
@@ -600,12 +612,6 @@
         var badge = document.getElementById('sourceBadge');
         badge.textContent = 'BLE';
         badge.classList.remove('wifi');
-        document.getElementById('wifiPassword').value       = '';
-        document.getElementById('wifiStatusMsg').className  = 'wifi-status-msg';
-        document.getElementById('wifiStatusMsg').textContent = '';
-        document.getElementById('BtnWifiConnect').disabled  = false;
-        resetSpeedtest();
-        document.getElementById('speedtestPanel').classList.remove('visible');
         renderNetworks();
     }
 
@@ -740,15 +746,16 @@
         if (wsMatch) {
             var msg = document.getElementById('wifiStatusMsg');
             var btn = document.getElementById('BtnWifiConnect');
+            var ssidName = selectedSSID || lastShownSSID || 'Desconhecida';
             if (wsMatch[1] === 'connected') {
                 msg.className   = 'wifi-status-msg success';
                 msg.textContent = 'Ligado com sucesso!';
-                log('WiFi ligado: ' + selectedSSID, 'ok');
+                log('WiFi ligado: ' + ssidName, 'ok');
                 document.getElementById('speedtestPanel').classList.add('visible');
             } else {
                 msg.className   = 'wifi-status-msg fail';
                 msg.textContent = 'Falhou. Verifica a palavra-passe.';
-                log('WiFi falhou para ' + selectedSSID, 'err');
+                log('WiFi falhou para ' + ssidName, 'err');
             }
             btn.disabled = false;
             return;
